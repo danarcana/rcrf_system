@@ -32,4 +32,6 @@ void USART_CharTransmitComplete_Callback(void);
   */
 void USART_TransferError_Callback(void);
 
+void TIM_ExpireCallback(void);
+
 #endif /* INC_USART_CB_H_ */

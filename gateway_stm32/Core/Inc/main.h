@@ -70,6 +70,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define RC11XX_CFG_PIN_Pin LL_GPIO_PIN_12
 #define RC11XX_CFG_PIN_GPIO_Port GPIOC
+#define RC11XX_RESET_PIN_Pin LL_GPIO_PIN_2
+#define RC11XX_RESET_PIN_GPIO_Port GPIOD
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -43,7 +43,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+volatile uint8_t usart2_dr = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,6 +57,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern TIM_HandleTypeDef htim14;
 extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim1;
 
@@ -241,6 +242,8 @@ void USART2_IRQHandler(void)
 	    /* RXNE flag will be cleared by reading of DR register (done in call) */
 	    /* Call function in charge of handling Character reception */
 //	    USART_CharReception_Callback();
+		  usart2_dr = LL_USART_ReceiveData8(USART2);
+		  LL_USART_TransmitData8(USART3, usart2_dr);
 	  }
 
 	  if(LL_USART_IsEnabledIT_TXE(USART2) && LL_USART_IsActiveFlag_TXE(USART2))
@@ -248,7 +251,7 @@ void USART2_IRQHandler(void)
 	    /* TXE flag will be automatically cleared when writing new data in DR register */
 
 	    /* Call function in charge of handling empty DR => will lead to transmission of next character */
-//	    USART_TXEmpty_Callback();
+	    USART_TXEmpty_Callback();
 	  }
 
 	  if(LL_USART_IsEnabledIT_TC(USART2) && LL_USART_IsActiveFlag_TC(USART2))
@@ -285,6 +288,10 @@ void USART3_IRQHandler(void)
 	    /* RXNE flag will be cleared by reading of DR register (done in call) */
 	    /* Call function in charge of handling Character reception */
 	    USART_CharReception_Callback();
+	    HAL_TIM_Base_Stop_IT(&htim14);
+	    TIM14->CNT = 0;
+	    // Start timer
+	    HAL_TIM_Base_Start_IT(&htim14);
 	  }
 
 	  if(LL_USART_IsEnabledIT_TXE(USART3) && LL_USART_IsActiveFlag_TXE(USART3))
@@ -316,6 +323,24 @@ void USART3_IRQHandler(void)
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM8 trigger and commutation interrupts and TIM14 global interrupt.
+  */
+void TIM8_TRG_COM_TIM14_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
+
+  /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim14);
+  /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 1 */
+
+  TIM_ExpireCallback();
+  TIM14->CNT = 0;
+  HAL_TIM_Base_Stop_IT(&htim14);
+  TIM14->CNT = 0;
+  /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

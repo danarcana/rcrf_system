@@ -23,6 +23,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim14;
+
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -33,6 +35,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_TIM14_Init(void);
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
@@ -43,6 +46,13 @@ void rc_enter_config(void)
 	LL_GPIO_ResetOutputPin(RC11XX_CFG_PIN);
 	HAL_Delay(20);
 	LL_GPIO_SetOutputPin(RC11XX_CFG_PIN);
+}
+
+void rc_reset(void)
+{
+	LL_GPIO_ResetOutputPin(RC11XX_RST_PIN);
+	HAL_Delay(20);
+	LL_GPIO_SetOutputPin(RC11XX_RST_PIN);
 }
 
 void usart_transmit_data(const void* data, uint16_t len) {
@@ -87,11 +97,15 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_TIM14_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+//  // Start timer
+//  HAL_TIM_Base_Start_IT(&htim14);
+
   HAL_Delay(30);
   uint8_t Tx_data_Usart2[10] = {0};
   Tx_data_Usart2[0] = 'I';
@@ -100,25 +114,25 @@ int main(void)
   Tx_data_Usart2[3] = 'T';
   usart_transmit_data(Tx_data_Usart2, 4);
 
-  rc_enter_config();
+//  rc_enter_config();
 
-  uint8_t Tx_data[10] = {0};
-  uint8_t Rx_data[10] = {0};
-  Tx_data[0]='V';
+//  uint8_t Tx_data[10] = {0};
+//  uint8_t Rx_data[10] = {0};
+//  Tx_data[0]='M';
+//  Tx_data[1]=14;
+//  Tx_data[1]=1;
+//  Tx_data[1]=0xFF;
+
+
+  LL_USART_EnableIT_RXNE(USART2);
+  LL_USART_EnableIT_RXNE(USART3);
+  LL_USART_EnableIT_TXE(USART2);
+
+
   while(1)
   {
 //	  LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_6);
-//	  HAL_Delay(250);
-//	  rc_enter_config();
-//	  LL_USART_TransmitData8(USART2, 'X');
-//	  LL_USART_TransmitData8(USART3, 'V');
-
-	  HAL_UART_Transmit(&huart3, Tx_data, 1,100);
-
-//	  while(LL_USART_IsActiveFlag_BUSY(USART3));
-//	  inchar = LL_USART_ReceiveData8(USART3);
-	  HAL_UART_Receive(&huart3,Rx_data,2,100);
-
+	  HAL_Delay(250);
   }
     /* USER CODE END WHILE */
 
@@ -172,6 +186,37 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief TIM14 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM14_Init(void)
+{
+
+  /* USER CODE BEGIN TIM14_Init 0 */
+
+  /* USER CODE END TIM14_Init 0 */
+
+  /* USER CODE BEGIN TIM14_Init 1 */
+
+  /* USER CODE END TIM14_Init 1 */
+  htim14.Instance = TIM14;
+  htim14.Init.Prescaler = 100;
+  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim14.Init.Period = 65535;
+  htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM14_Init 2 */
+
+  /* USER CODE END TIM14_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -212,7 +257,7 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 115200;
+  USART_InitStruct.BaudRate = 19200;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_2;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;
@@ -283,6 +328,9 @@ static void MX_GPIO_Init(void)
   LL_GPIO_SetOutputPin(RC11XX_CFG_PIN_GPIO_Port, RC11XX_CFG_PIN_Pin);
 
   /**/
+  LL_GPIO_SetOutputPin(RC11XX_RESET_PIN_GPIO_Port, RC11XX_RESET_PIN_Pin);
+
+  /**/
   GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
@@ -295,6 +343,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(RC11XX_CFG_PIN_GPIO_Port, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = RC11XX_RESET_PIN_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  LL_GPIO_Init(RC11XX_RESET_PIN_GPIO_Port, &GPIO_InitStruct);
 
 }
 

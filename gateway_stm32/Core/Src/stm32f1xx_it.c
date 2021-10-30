@@ -44,6 +44,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 volatile uint8_t usart2_dr = 0;
+extern volatile uint8_t enable_tim;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -229,7 +230,7 @@ void TIM1_UP_TIM10_IRQHandler(void)
 
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
-extern volatile uint8_t enable_tim;
+
 /**
   * @brief This function handles USART2 global interrupt.
   */

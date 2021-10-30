@@ -99,9 +99,9 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM14_Init();
+  /* USER CODE BEGIN 2 */
   TIM14->CNT = 0;
   htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
-  /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -44,7 +44,9 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 volatile uint8_t usart2_dr = 0;
-extern volatile uint8_t enable_tim;
+//extern volatile uint8_t enable_tim;
+extern __IO uint8_t      usart3_is_msg;
+extern __IO uint8_t   usart3_rx_len;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,8 +60,6 @@ extern volatile uint8_t enable_tim;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim14;
-extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
@@ -218,6 +218,34 @@ void RCC_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 channel3 global interrupt.
+  */
+void DMA1_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
+
+  if(LL_DMA_IsActiveFlag_HT3(DMA1) == 1)
+  {
+	usart3_rx_len++;
+	LL_DMA_ClearFlag_HT3(DMA1);
+  }
+  if(LL_DMA_IsActiveFlag_TC3(DMA1) == 1)
+  {
+	LL_DMA_ClearFlag_GI3(DMA1);
+  }
+  if(LL_DMA_IsActiveFlag_TE3(DMA1) == 1)
+  {
+	LL_DMA_ClearFlag_TE3(DMA1);
+  }
+
+  /* USER CODE END DMA1_Channel3_IRQn 0 */
+
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
   */
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -287,18 +315,24 @@ void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
 
+	  if(LL_USART_IsActiveFlag_IDLE(USART3))
+	  {
+	    LL_USART_ClearFlag_IDLE(USART3);
+	    usart3_is_msg = 1;
+	  }
+
 	 /* Check RXNE flag value in SR register */
 	  if(LL_USART_IsActiveFlag_RXNE(USART3) && LL_USART_IsEnabledIT_RXNE(USART3))
 	  {
 	    /* RXNE flag will be cleared by reading of DR register (done in call) */
 	    /* Call function in charge of handling Character reception */
-	    USART_CharReception_Callback();
+//	    USART_CharReception_Callback();
 //	    HAL_TIM_Base_Stop_IT(&htim14);
-	    TIM14->CNT = 0;
+//	    TIM14->CNT = 0;
 	    // Start timer
 //	    HAL_TIM_Base_Start_IT(&htim14);
 //	    HAL_TIM_Base_MspInit(&htim14);
-	    enable_tim =1;
+//	    enable_tim =1;
 	  }
 
 	  if(LL_USART_IsEnabledIT_TXE(USART3) && LL_USART_IsActiveFlag_TXE(USART3))
@@ -326,27 +360,9 @@ void USART3_IRQHandler(void)
 
 
   /* USER CODE END USART3_IRQn 0 */
-  HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM8 trigger and commutation interrupts and TIM14 global interrupt.
-  */
-void TIM8_TRG_COM_TIM14_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
-	TIM14->CNT = 0;
-	HAL_TIM_Base_Stop_IT(&htim14);
-  /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim14);
-  /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 1 */
-
-  TIM_ExpireCallback();
-
-  /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

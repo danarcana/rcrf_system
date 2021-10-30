@@ -5,6 +5,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "rc11xx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -23,9 +24,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim14;
-
-UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
@@ -35,8 +33,13 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_TIM14_Init(void);
+static void MX_DMA_Init(void);
 /* USER CODE BEGIN PFP */
+#define USART3_RX_BUFFER_SIZE      250
+
+extern __IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
+extern __IO uint8_t   usart3_rx_len;
+extern __IO uint8_t   usart3_is_msg;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -98,10 +101,10 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
-  MX_TIM14_Init();
+  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
-  TIM14->CNT = 0;
-  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
+//  TIM14->CNT = 0;
+//  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -126,22 +129,32 @@ int main(void)
 //  Tx_data[1]=1;
 //  Tx_data[1]=0xFF;
 
-
   LL_USART_EnableIT_RXNE(USART2);
   LL_USART_EnableIT_RXNE(USART3);
+  LL_USART_EnableIT_IDLE(USART3);
   LL_USART_EnableIT_TC(USART2);
+
+  rc_enter_config();
 
   while(1)
   {
-	  HAL_Delay(1250);
-	  if (enable_tim==1)
+	  HAL_Delay(250);
+	  //forward USART3 receive data
+	  if (usart3_is_msg==1)
 	  {
-		  TIM14->CNT = 0;
-		  TIM14->SR &= (uint32_t)~TIM_SR_UIF;
-		  __HAL_TIM_CLEAR_IT(&htim14, TIM_IT_UPDATE);
-		  HAL_TIM_Base_Start_IT(&htim14);
-		  enable_tim = 0;
+			usart3_last_rcv_idx  = usart3_buff_idx;
+			usart3_buff_idx = 0;
+			LL_USART_TransmitData8(USART2, usart3_rx_buffer[usart3_buff_idx]);
+			usart3_buff_idx ++;
 	  }
+//	  if (enable_tim==1)
+//	  {
+//		  TIM14->CNT = 0;
+//		  TIM14->SR &= (uint32_t)~TIM_SR_UIF;
+//		  __HAL_TIM_CLEAR_IT(&htim14, TIM_IT_UPDATE);
+//		  HAL_TIM_Base_Start_IT(&htim14);
+//		  enable_tim = 0;
+//	  }
   }
     /* USER CODE END WHILE */
 
@@ -192,37 +205,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-}
-
-/**
-  * @brief TIM14 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM14_Init(void)
-{
-
-  /* USER CODE BEGIN TIM14_Init 0 */
-
-  /* USER CODE END TIM14_Init 0 */
-
-  /* USER CODE BEGIN TIM14_Init 1 */
-
-  /* USER CODE END TIM14_Init 1 */
-  htim14.Instance = TIM14;
-  htim14.Init.Prescaler = 1000;
-  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = 65535;
-  htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM14_Init 2 */
-
-  /* USER CODE END TIM14_Init 2 */
-
 }
 
 /**
@@ -294,24 +276,104 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 0 */
 
+  LL_USART_InitTypeDef USART_InitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART3);
+
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOC);
+  /**USART3 GPIO Configuration
+  PC10   ------> USART3_TX
+  PC11   ------> USART3_RX
+  */
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_11;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
+  LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  LL_GPIO_AF_RemapPartial_USART3();
+
+  /* USART3 DMA Init */
+
+  /* USART3_RX Init */
+  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_3, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+
+  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_3, LL_DMA_PRIORITY_LOW);
+
+  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MODE_NORMAL);
+
+  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_PERIPH_NOINCREMENT);
+
+  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MEMORY_INCREMENT);
+
+  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_3, LL_DMA_PDATAALIGN_BYTE);
+
+  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MDATAALIGN_BYTE);
+
+  /* USART3 interrupt Init */
+  NVIC_SetPriority(USART3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(USART3_IRQn);
+
   /* USER CODE BEGIN USART3_Init 1 */
 
   /* USER CODE END USART3_Init 1 */
-  huart3.Instance = USART3;
-  huart3.Init.BaudRate = 19200;
-  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-  huart3.Init.StopBits = UART_STOPBITS_1;
-  huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX_RX;
-  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  USART_InitStruct.BaudRate = 19200;
+  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
+  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
+  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
+  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
+  LL_USART_Init(USART3, &USART_InitStruct);
+  LL_USART_ConfigAsyncMode(USART3);
+  LL_USART_Enable(USART3);
   /* USER CODE BEGIN USART3_Init 2 */
 
+  /* Set DMA transfer addresses of source and destination */
+  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_3, LL_USART_DMA_GetRegAddr(USART3),
+                         (uint32_t)&usart3_rx_buffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+
+  /* Set DMA transfer size */
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_3, USART3_RX_BUFFER_SIZE);
+
+  /* Enable DMA transfer interruption: transfer complete */
+  LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_3);
+  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_3);
+
+  /* Enable DMA transfer interruption: transfer error */
+  LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_3);
+
+  /*## Activation of DMA #####################################################*/
+  /* Enable the DMA transfer */
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_3);
+
+  LL_USART_EnableDMAReq_RX(USART3);
+
   /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* Init with LL driver */
+  /* DMA controller clock enable */
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+
+  /* DMA interrupt init */
+  /* DMA1_Channel3_IRQn interrupt configuration */
+  NVIC_SetPriority(DMA1_Channel3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 

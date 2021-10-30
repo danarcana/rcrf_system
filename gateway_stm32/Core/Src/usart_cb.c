@@ -11,6 +11,13 @@ volatile uint8_t usart3_buffer[250] = {0};
 volatile uint8_t usart3_dr = 0;
 volatile uint8_t usart3_buff_idx = 0;
 
+#define USART3_RX_BUFFER_SIZE      250
+
+__IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
+__IO uint8_t   usart3_rx_len;
+__IO uint8_t      usart3_is_msg;
+
+
 volatile uint8_t usart3_last_rcv_idx = 0;
 /**
   * @brief  Function called from USART IRQ Handler when RXNE flag is set

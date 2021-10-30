@@ -113,5 +113,4 @@ void TIM_ExpireCallback(void)
 	usart3_buff_idx = 0;
 	LL_USART_TransmitData8(USART2, usart3_buffer[usart3_buff_idx]);
 	usart3_buff_idx ++;
-	TIM_ITConfig(TIM4, TIM_IT_Update , DISABLE);
 }

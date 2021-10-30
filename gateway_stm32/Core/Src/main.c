@@ -68,6 +68,7 @@ void usart_transmit_data(const void* data, uint16_t len) {
         }
  }
 
+volatile uint8_t enable_tim=0;
 /* USER CODE END 0 */
 
 /**
@@ -98,6 +99,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM14_Init();
+  TIM14->CNT = 0;
+  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
@@ -126,13 +129,19 @@ int main(void)
 
   LL_USART_EnableIT_RXNE(USART2);
   LL_USART_EnableIT_RXNE(USART3);
-  LL_USART_EnableIT_TXE(USART2);
-
+  LL_USART_EnableIT_TC(USART2);
 
   while(1)
   {
-//	  LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_6);
-	  HAL_Delay(250);
+	  HAL_Delay(1250);
+	  if (enable_tim==1)
+	  {
+		  TIM14->CNT = 0;
+		  TIM14->SR &= (uint32_t)~TIM_SR_UIF;
+		  __HAL_TIM_CLEAR_IT(&htim14, TIM_IT_UPDATE);
+		  HAL_TIM_Base_Start_IT(&htim14);
+		  enable_tim = 0;
+	  }
   }
     /* USER CODE END WHILE */
 
@@ -201,7 +210,7 @@ static void MX_TIM14_Init(void)
 
   /* USER CODE END TIM14_Init 1 */
   htim14.Instance = TIM14;
-  htim14.Init.Prescaler = 100;
+  htim14.Init.Prescaler = 1000;
   htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim14.Init.Period = 65535;
   htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

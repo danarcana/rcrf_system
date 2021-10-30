@@ -229,7 +229,7 @@ void TIM1_UP_TIM10_IRQHandler(void)
 
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
-
+extern volatile uint8_t enable_tim;
 /**
   * @brief This function handles USART2 global interrupt.
   */
@@ -251,12 +251,16 @@ void USART2_IRQHandler(void)
 	    /* TXE flag will be automatically cleared when writing new data in DR register */
 
 	    /* Call function in charge of handling empty DR => will lead to transmission of next character */
-	    USART_TXEmpty_Callback();
+//	    USART_TXEmpty_Callback();
+	    LL_USART_ClearFlag_TC(USART2);
+//	    USART_ITConfig (USART1, USART_IT_TXE, DISABLE);
+//	    LL_USART_EnableIT_TXE(USART2);
 	  }
 
 	  if(LL_USART_IsEnabledIT_TC(USART2) && LL_USART_IsActiveFlag_TC(USART2))
 	  {
 	    /* Clear TC flag */
+		  USART_TXEmpty_Callback();
 	    LL_USART_ClearFlag_TC(USART2);
 	    /* Call function in charge of handling end of transmission of sent character
 	       and prepare next character transmission */
@@ -288,10 +292,12 @@ void USART3_IRQHandler(void)
 	    /* RXNE flag will be cleared by reading of DR register (done in call) */
 	    /* Call function in charge of handling Character reception */
 	    USART_CharReception_Callback();
-	    HAL_TIM_Base_Stop_IT(&htim14);
+//	    HAL_TIM_Base_Stop_IT(&htim14);
 	    TIM14->CNT = 0;
 	    // Start timer
-	    HAL_TIM_Base_Start_IT(&htim14);
+//	    HAL_TIM_Base_Start_IT(&htim14);
+//	    HAL_TIM_Base_MspInit(&htim14);
+	    enable_tim =1;
 	  }
 
 	  if(LL_USART_IsEnabledIT_TXE(USART3) && LL_USART_IsActiveFlag_TXE(USART3))
@@ -331,15 +337,14 @@ void USART3_IRQHandler(void)
 void TIM8_TRG_COM_TIM14_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
-
+	TIM14->CNT = 0;
+	HAL_TIM_Base_Stop_IT(&htim14);
   /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 0 */
   HAL_TIM_IRQHandler(&htim14);
   /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 1 */
 
   TIM_ExpireCallback();
-  TIM14->CNT = 0;
-  HAL_TIM_Base_Stop_IT(&htim14);
-  TIM14->CNT = 0;
+
   /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 1 */
 }
 

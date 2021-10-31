@@ -47,6 +47,7 @@ volatile uint8_t usart2_dr = 0;
 //extern volatile uint8_t enable_tim;
 extern __IO uint8_t      usart3_is_msg;
 extern __IO uint8_t   usart3_rx_len;
+extern __IO uint8_t usart3_buff_idx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -218,34 +219,6 @@ void RCC_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel3 global interrupt.
-  */
-void DMA1_Channel3_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
-
-  if(LL_DMA_IsActiveFlag_HT3(DMA1) == 1)
-  {
-	usart3_rx_len++;
-	LL_DMA_ClearFlag_HT3(DMA1);
-  }
-  if(LL_DMA_IsActiveFlag_TC3(DMA1) == 1)
-  {
-	LL_DMA_ClearFlag_GI3(DMA1);
-  }
-  if(LL_DMA_IsActiveFlag_TE3(DMA1) == 1)
-  {
-	LL_DMA_ClearFlag_TE3(DMA1);
-  }
-
-  /* USER CODE END DMA1_Channel3_IRQn 0 */
-
-  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel3_IRQn 1 */
-}
-
-/**
   * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
   */
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -318,7 +291,10 @@ void USART3_IRQHandler(void)
 	  if(LL_USART_IsActiveFlag_IDLE(USART3))
 	  {
 	    LL_USART_ClearFlag_IDLE(USART3);
-	    usart3_is_msg = 1;
+	    if (usart3_buff_idx > 0)
+	    {
+	    	usart3_is_msg = 1;
+	    }
 	  }
 
 	 /* Check RXNE flag value in SR register */
@@ -326,7 +302,7 @@ void USART3_IRQHandler(void)
 	  {
 	    /* RXNE flag will be cleared by reading of DR register (done in call) */
 	    /* Call function in charge of handling Character reception */
-//	    USART_CharReception_Callback();
+	    USART_CharReception_Callback();
 //	    HAL_TIM_Base_Stop_IT(&htim14);
 //	    TIM14->CNT = 0;
 	    // Start timer

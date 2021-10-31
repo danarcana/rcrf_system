@@ -14,8 +14,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define RC11XX_CFG_PIN GPIOC, LL_GPIO_PIN_12
-#define RC11XX_RST_PIN GPIOD, LL_GPIO_PIN_2
+
 
 /* USER CODE END PD */
 
@@ -33,30 +32,34 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_DMA_Init(void);
 /* USER CODE BEGIN PFP */
 #define USART3_RX_BUFFER_SIZE      250
 
 extern __IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
 extern __IO uint8_t   usart3_rx_len;
 extern __IO uint8_t   usart3_is_msg;
+extern __IO uint8_t   usart3_buff_idx;
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void rc_enter_config(void)
-{
-	LL_GPIO_ResetOutputPin(RC11XX_CFG_PIN);
-	HAL_Delay(20);
-	LL_GPIO_SetOutputPin(RC11XX_CFG_PIN);
-}
 
-void rc_reset(void)
-{
-	LL_GPIO_ResetOutputPin(RC11XX_RST_PIN);
-	HAL_Delay(20);
-	LL_GPIO_SetOutputPin(RC11XX_RST_PIN);
-}
+
+
+//#define F_CPU 16000000UL
+//#ifndef F_CPU
+//#warning "F_CPU not defined, using 2MHz by default"
+//#define F_CPU 2000000UL
+//#endif
+//
+////#include <stdint.h>
+//void delay_ms(uint32_t ms) {
+//    uint32_t i;
+//    for (i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+//        _asm("nop");
+//    }
+//}
 
 void usart_transmit_data(const void* data, uint16_t len) {
     const uint8_t* b = data;
@@ -71,7 +74,6 @@ void usart_transmit_data(const void* data, uint16_t len) {
         }
  }
 
-volatile uint8_t enable_tim=0;
 /* USER CODE END 0 */
 
 /**
@@ -101,7 +103,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
-  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
 //  TIM14->CNT = 0;
 //  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
@@ -120,41 +121,34 @@ int main(void)
   Tx_data_Usart2[3] = 'T';
   usart_transmit_data(Tx_data_Usart2, 4);
 
-//  rc_enter_config();
-
-//  uint8_t Tx_data[10] = {0};
-//  uint8_t Rx_data[10] = {0};
-//  Tx_data[0]='M';
-//  Tx_data[1]=14;
-//  Tx_data[1]=1;
-//  Tx_data[1]=0xFF;
-
   LL_USART_EnableIT_RXNE(USART2);
   LL_USART_EnableIT_RXNE(USART3);
   LL_USART_EnableIT_IDLE(USART3);
   LL_USART_EnableIT_TC(USART2);
 
+  rc_hw_reset();
+  rc_exit_config();
+  HAL_Delay(300);
   rc_enter_config();
+
+  rc_read_config();
+  rc_configure();
+  usart3_is_msg = 0;
+  usart3_buff_idx =0;
 
   while(1)
   {
 	  HAL_Delay(250);
-	  //forward USART3 receive data
+	  //forward USART3 receive data on USART2
 	  if (usart3_is_msg==1)
 	  {
-			usart3_last_rcv_idx  = usart3_buff_idx;
-			usart3_buff_idx = 0;
-			LL_USART_TransmitData8(USART2, usart3_rx_buffer[usart3_buff_idx]);
-			usart3_buff_idx ++;
+		  usart3_rx_len = usart3_buff_idx;
+		  usart3_buff_idx = 0;
+		  LL_USART_TransmitData8(USART2, usart3_rx_buffer[usart3_buff_idx]);
+		  usart3_buff_idx ++;
+		  usart3_is_msg = 0;
 	  }
-//	  if (enable_tim==1)
-//	  {
-//		  TIM14->CNT = 0;
-//		  TIM14->SR &= (uint32_t)~TIM_SR_UIF;
-//		  __HAL_TIM_CLEAR_IT(&htim14, TIM_IT_UPDATE);
-//		  HAL_TIM_Base_Start_IT(&htim14);
-//		  enable_tim = 0;
-//	  }
+
   }
     /* USER CODE END WHILE */
 
@@ -300,23 +294,6 @@ static void MX_USART3_UART_Init(void)
 
   LL_GPIO_AF_RemapPartial_USART3();
 
-  /* USART3 DMA Init */
-
-  /* USART3_RX Init */
-  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_3, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
-
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_3, LL_DMA_PRIORITY_LOW);
-
-  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MODE_NORMAL);
-
-  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_PERIPH_NOINCREMENT);
-
-  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MEMORY_INCREMENT);
-
-  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_3, LL_DMA_PDATAALIGN_BYTE);
-
-  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MDATAALIGN_BYTE);
-
   /* USART3 interrupt Init */
   NVIC_SetPriority(USART3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(USART3_IRQn);
@@ -336,44 +313,27 @@ static void MX_USART3_UART_Init(void)
   LL_USART_Enable(USART3);
   /* USER CODE BEGIN USART3_Init 2 */
 
-  /* Set DMA transfer addresses of source and destination */
-  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_3, LL_USART_DMA_GetRegAddr(USART3),
-                         (uint32_t)&usart3_rx_buffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
-
-  /* Set DMA transfer size */
-  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_3, USART3_RX_BUFFER_SIZE);
-
-  /* Enable DMA transfer interruption: transfer complete */
-  LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_3);
-  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_3);
-
-  /* Enable DMA transfer interruption: transfer error */
-  LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_3);
-
-  /*## Activation of DMA #####################################################*/
-  /* Enable the DMA transfer */
-  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_3);
-
-  LL_USART_EnableDMAReq_RX(USART3);
+//  /* Set DMA transfer addresses of source and destination */
+//  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_3, LL_USART_DMA_GetRegAddr(USART3),
+//                         (uint32_t)&usart3_rx_buffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+//
+//  /* Set DMA transfer size */
+//  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_3, USART3_RX_BUFFER_SIZE);
+//
+//  /* Enable DMA transfer interruption: transfer complete */
+//  LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_3);
+//  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_3);
+//
+//  /* Enable DMA transfer interruption: transfer error */
+//  LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_3);
+//
+//  /*## Activation of DMA #####################################################*/
+//  /* Enable the DMA transfer */
+//  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_3);
+//
+//  LL_USART_EnableDMAReq_RX(USART3);
 
   /* USER CODE END USART3_Init 2 */
-
-}
-
-/**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* Init with LL driver */
-  /* DMA controller clock enable */
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
-
-  /* DMA interrupt init */
-  /* DMA1_Channel3_IRQn interrupt configuration */
-  NVIC_SetPriority(DMA1_Channel3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 
@@ -419,7 +379,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = RC11XX_RESET_PIN_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(RC11XX_RESET_PIN_GPIO_Port, &GPIO_InitStruct);
 
 }

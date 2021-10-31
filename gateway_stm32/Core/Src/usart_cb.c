@@ -7,18 +7,16 @@
 
 #include "stm32f1xx_ll_usart.h"
 
-volatile uint8_t usart3_buffer[250] = {0};
 volatile uint8_t usart3_dr = 0;
-volatile uint8_t usart3_buff_idx = 0;
+
 
 #define USART3_RX_BUFFER_SIZE      250
 
-__IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
-__IO uint8_t   usart3_rx_len;
-__IO uint8_t      usart3_is_msg;
+__IO uint8_t   	usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
+__IO uint8_t   	usart3_rx_len = 0;
+__IO uint8_t   	usart3_is_msg = 0;
+__IO uint8_t 	usart3_buff_idx = 0;
 
-
-volatile uint8_t usart3_last_rcv_idx = 0;
 /**
   * @brief  Function called from USART IRQ Handler when RXNE flag is set
   *         Function is in charge of reading character received on USART RX line.
@@ -27,21 +25,13 @@ volatile uint8_t usart3_last_rcv_idx = 0;
   */
 void USART_CharReception_Callback(void)
 {
-  /* Read Received character. RXNE flag is cleared by reading of DR register */
 	usart3_dr = LL_USART_ReceiveData8(USART3);
-//	LL_USART_TransmitData8(USART2, usart3_dr);
-	usart3_buffer[usart3_buff_idx] = usart3_dr;
+	usart3_rx_buffer[usart3_buff_idx] = usart3_dr;
 	usart3_buff_idx++;
-	if (usart3_buff_idx >=235 )
+	if (usart3_buff_idx >=USART3_RX_BUFFER_SIZE )
 	{
 		usart3_buff_idx = 0;
 	}
-
-//  if (usart3_buff_idx == ubUSART1NbDataToReceive)
-//  {
-//    /* Set USART1 End of Reception flag */
-//    ubUSART1ReceptionComplete = 1;
-//  }
 }
 
 
@@ -53,14 +43,14 @@ void USART_CharReception_Callback(void)
 void USART_TXEmpty_Callback(void)
 {
 	//Transmit USART3 buffer on USART1
-	if (usart3_last_rcv_idx > 0)
+	if ((usart3_buff_idx <= usart3_rx_len)&& (usart3_buff_idx>0))
 	{
-		LL_USART_TransmitData8(USART2, usart3_buffer[usart3_buff_idx]);
+		LL_USART_TransmitData8(USART2, usart3_rx_buffer[usart3_buff_idx]);
 		usart3_buff_idx ++;
-		if (usart3_buff_idx > usart3_last_rcv_idx)
+		if (usart3_buff_idx > usart3_rx_len)
 		{
 			usart3_buff_idx = 0;
-			usart3_last_rcv_idx = 0;
+			usart3_rx_len = 0;
 		}
 	}
 	else
@@ -68,17 +58,6 @@ void USART_TXEmpty_Callback(void)
 //		usart3_buff_idx = 0;
 //		usart3_last_rcv_idx = 0;
 	}
-//  if(ubSend == (ubUSART1NbDataToTransmit - 1))
-//  {
-//    /* Disable TXE interrupt */
-//    LL_USART_DisableIT_TXE(USART1);
-//
-//    /* Enable TC interrupt */
-//    LL_USART_EnableIT_TC(USART1);
-//  }
-//
-//  /* Fill DR with a new char */
-//  LL_USART_TransmitData8(USART1, aUSART1TxBuffer[ubSend++]);
 }
 
 /**
@@ -113,11 +92,3 @@ void USART_TransferError_Callback(void)
 //  LED_Blinking(LED_BLINK_ERROR);
 }
 
-
-void TIM_ExpireCallback(void)
-{
-	usart3_last_rcv_idx  = usart3_buff_idx;
-	usart3_buff_idx = 0;
-	LL_USART_TransmitData8(USART2, usart3_buffer[usart3_buff_idx]);
-	usart3_buff_idx ++;
-}

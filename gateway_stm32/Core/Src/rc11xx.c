@@ -83,6 +83,16 @@ void rc_read_config()
 	while (!LL_USART_IsActiveFlag_TC(USART3)) {};
 	while (!usart3_is_msg) {};
 }
+
+void rc_factory_reset()
+{
+	LL_USART_TransmitData8(USART3, '@');
+	while (!LL_USART_IsActiveFlag_TC(USART3)) {};
+	LL_USART_TransmitData8(USART3, 'T');
+	while (!LL_USART_IsActiveFlag_TC(USART3)) {};
+	LL_USART_TransmitData8(USART3, 'M');
+	while (!LL_USART_IsActiveFlag_TC(USART3)) {};
+}
 void rc_configure()
 {
 	p_rc_config_mem = (rc11xx_config_mem_t *) &usart3_rx_buffer[0];
@@ -116,6 +126,27 @@ void rc_configure()
 	{
 		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_ED_WAIT_CMD,10);
 	}
+
+	if (p_rc_config_mem->uid[0]!=192)
+	{
+		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_UID0,192);
+	}
+
+	if (p_rc_config_mem->uid[1]!=44)
+	{
+		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_UID1,44);
+	}
+
+	if (p_rc_config_mem->uid[2]!=0)
+	{
+		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_UID2,0);
+	}
+
+	if (p_rc_config_mem->uid[3]!=1)
+	{
+		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_UID3,1);
+	}
+
 
 //	if (p_rc_config_mem->end_device_wakeup_enable!=RC11XX_CFG_WAKE_UP_SOURCE)
 //	{

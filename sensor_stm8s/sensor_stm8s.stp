@@ -295,11 +295,21 @@ Next=Root.Source Files.stm8_interrupt_vector.c
 [Root.Source Files.stm8_interrupt_vector.c]
 ElemType=File
 PathName=stm8_interrupt_vector.c
+Next=Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_clk.c
+
+[Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_clk.c]
+ElemType=File
+PathName=stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_clk.c
 Next=Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_gpio.c
 
 [Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_gpio.c]
 ElemType=File
 PathName=stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_gpio.c
+Next=Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c
+
+[Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c]
+ElemType=File
+PathName=stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c
 
 [Root.Include Files]
 ElemType=Folder

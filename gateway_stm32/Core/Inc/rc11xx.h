@@ -198,5 +198,6 @@ bool rc_enter_config(void);
 void rc_exit_config(void);
 void rc_read_config(void);
 void rc_configure(void);
+void rc_factory_reset();
 
 #endif /* INC_RC11XX_H_ */

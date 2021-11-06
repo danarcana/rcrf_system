@@ -136,6 +136,7 @@ int main(void)
   usart3_is_msg = 0;
   usart3_buff_idx =0;
 
+//  rc_factory_reset();
   while(1)
   {
 	  HAL_Delay(250);

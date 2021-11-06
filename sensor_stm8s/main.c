@@ -9,7 +9,8 @@
 
 #include "stm8s.h"
 #include "stm8s_gpio.h"
-
+#include "stm8s_i2c.h"
+#include "stm8s_clk.h"
 
 typedef enum
 {
@@ -101,8 +102,8 @@ typedef struct
   uint8_t   hiam_time;
   uint8_t   ima_time;
   uint8_t   device_type;
-  uint32_t 	uid;
-  uint32_t  sid;
+  uint8_t 	uid[4];
+  uint8_t   sid[4];
   uint8_t   ima_basetime;
   uint8_t   end_device_wait_cmd;
   uint8_t   end_device_wakeup_enable;
@@ -235,6 +236,8 @@ void rc_hw_reset(void)
 
 void rc_write_config_value(uint8_t config_address, uint8_t config_value)
 {
+	uint8_t inChar = 0;
+	
 	USART_TX(RC11XX_CMD_WRITE_CONFIG_MEMORY);
 	//rc_wait_for_prompt();
 	while (!(UART1_SR & (1 << 5)));
@@ -242,7 +245,38 @@ void rc_write_config_value(uint8_t config_address, uint8_t config_value)
 	USART_TX(config_value);
 	USART_TX(RC11XX_CMD_TERMINATE_CONFIG_MEMORY);
 	//rc_wait_for_prompt();
-	while (!(UART1_SR & (1 << 5)));
+	while (inChar!='>')
+	{
+			while (!(UART1_SR & (1 << 5))){};
+			inChar = USART_RX();
+	}
+	delay_ms(20);
+}
+
+void rc_write_config_array(uint8_t *config_array, uint8_t array_len)
+{
+	uint8_t inChar = 0;
+	uint8_t i = 0;
+	USART_TX(RC11XX_CMD_WRITE_CONFIG_MEMORY);
+	//rc_wait_for_prompt();
+	//while (!(UART1_SR & (1 << 5)));
+	while (inChar!='>')
+	{
+			while (!(UART1_SR & (1 << 5))){};
+			inChar = USART_RX();
+	}
+	for (i=0;i<array_len;i++)
+	{
+		USART_TX(*config_array);
+		config_array++;
+	}
+	USART_TX(RC11XX_CMD_TERMINATE_CONFIG_MEMORY);
+	while (inChar!='>')
+	{
+			while (!(UART1_SR & (1 << 5))){};
+			inChar = USART_RX();
+	}
+	delay_ms(20);
 }
 
 uint8_t rc_read_config_address(uint8_t cfg_address)
@@ -259,6 +293,9 @@ uint8_t rc_read_config_address(uint8_t cfg_address)
 void rc_configure_ed()
 {
 	uint8_t config_value = 0;
+	uint8_t config_array[20] = {0};
+	uint8_t config_array_idx = 0;
+
 	rc_enter_config();
 	
 	rc_config_mem.data_rate = rc_read_config_address(RC11XX_ADDRESS_CFG_MEM_DATA_RATE);
@@ -271,44 +308,245 @@ void rc_configure_ed()
 
 	if (rc_config_mem.data_rate!=RC11XX_CFG_DATA_RATE)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_DATA_RATE,RC11XX_CFG_DATA_RATE);
+		//rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_DATA_RATE,RC11XX_CFG_DATA_RATE);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_DATA_RATE; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_CFG_DATA_RATE; config_array_idx++;
 	}
 
 	if (rc_config_mem.device_type!=RC11XX_CFG_DEVICE_TYPE)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_DEVICE_TYPE,RC11XX_CFG_DEVICE_TYPE);
+		//rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_DEVICE_TYPE,RC11XX_CFG_DEVICE_TYPE);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_DEVICE_TYPE; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_CFG_DEVICE_TYPE; config_array_idx++;
 	}
 	
 	if (rc_config_mem.protocol_mode!=RC11XX_CFG_PROTOCOL_MODE)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_PROTOCOL_MODE,RC11XX_CFG_PROTOCOL_MODE);
+//		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_PROTOCOL_MODE,RC11XX_CFG_PROTOCOL_MODE);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_PROTOCOL_MODE; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_CFG_PROTOCOL_MODE; config_array_idx++;
 	}
 
 	if (rc_config_mem.indicators_on!=RC11XX_INDICATORS_OFF)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_INDICATORS_ON,RC11XX_INDICATORS_OFF);
+//		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_INDICATORS_ON,RC11XX_INDICATORS_OFF);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_INDICATORS_ON; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_INDICATORS_OFF; config_array_idx++;
 	}
 	
 	if (rc_config_mem.ima_on_connect!=RC11XX_IMA_ON_CONNECT_OFF)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_IMA_ON_CONNECT,RC11XX_IMA_ON_CONNECT_OFF);
+//		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_IMA_ON_CONNECT,RC11XX_IMA_ON_CONNECT_OFF);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_IMA_ON_CONNECT; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_IMA_ON_CONNECT_OFF; config_array_idx++;
 	}
 
 	//10 x 0.1 sec
 	if (rc_config_mem.end_device_wait_cmd!=10)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_ED_WAIT_CMD,10);
+//		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_ED_WAIT_CMD,10);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_ED_WAIT_CMD; config_array_idx++;
+		config_array[config_array_idx] = 10; config_array_idx++;
 	}
 	
 	if (rc_config_mem.end_device_wakeup_enable!=RC11XX_CFG_WAKE_UP_SOURCE)
 	{
-		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_WAKE_SOURCE,RC11XX_CFG_WAKE_UP_SOURCE);
+		//rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_WAKE_SOURCE,RC11XX_CFG_WAKE_UP_SOURCE);
+		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_WAKE_SOURCE; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_CFG_WAKE_UP_SOURCE; config_array_idx++;
 	}
+	rc_write_config_array(config_array, config_array_idx);
 	delay_ms(70);
 	rc_exit_config();
 	//rc_hw_reset();
 }
 uint8_t counter_tx=0;
+#define SLAVE_ADDRESS  128
+typedef enum{
+  I2C_ADR_W                = 128,   // sensor I2C address + write bit
+  I2C_ADR_R                = 129    // sensor I2C address + read bit
+}etI2cHeader;
+
+
+/* Maximum Timeout values for flags and events waiting loops. These timeouts are
+   not based on accurate values, they just guarantee that the application will
+   not remain stuck if the I2C communication is corrupted.
+   You may modify these timeout values depending on CPU frequency and application
+   conditions (interrupts routines ...). */
+#define sEE_FLAG_TIMEOUT         ((uint32_t)0x5000)
+#define sEE_LONG_TIMEOUT         ((uint32_t)(10 * sEE_FLAG_TIMEOUT))
+__IO uint32_t  sEETimeout = sEE_LONG_TIMEOUT;
+
+
+/**
+  * @brief  Example of timeout situation management.
+  * @param  None.
+  * @retval None.
+  */
+uint32_t sEE_TIMEOUT_UserCallback(void)
+{
+  /* User application may try to recover the communication by resetting I2C
+    peripheral (calling the function I2C_SoftwareResetCmd()) then re-start
+    the transmission/reception from a previously stored recover point.
+    For simplicity reasons, this example only shows a basic way for errors 
+    managements which consists of stopping all the process and requiring system
+    reset. */
+  
+  
+  /* Block communication and all processes */
+  while (1)
+  {   
+  }  
+}
+
+
+//==============================================================================
+uint8_t SHT2x_GetSerialNumber(uint8_t u8SerialNumber[])
+//==============================================================================
+{
+  uint8_t  error=0;                          //error variable
+	
+	/* While the bus is busy */
+//  sEETimeout = sEE_LONG_TIMEOUT;
+//  while(I2C_GetFlagStatus( I2C_FLAG_BUSBUSY))
+//  {
+//    if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+//  }
+	
+	 /* Send START condition */
+  I2C_GenerateSTART(ENABLE);
+
+  /* Test on EV5 and clear it (cleared by reading SR1 then writing to DR) */
+  sEETimeout = sEE_FLAG_TIMEOUT;
+  while(!I2C_CheckEvent( I2C_EVENT_MASTER_MODE_SELECT))
+  {
+    if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+  }
+
+  /* Send EEPROM address for write */
+  I2C_Send7bitAddress( (uint8_t)I2C_ADR_W, I2C_DIRECTION_TX);
+
+
+	
+//  I2C_SendData (I2C_ADR_W);    //I2C address
+
+	
+	/* Test on EV8 and clear it */
+  sEETimeout = sEE_FLAG_TIMEOUT;
+  while(!I2C_CheckEvent( I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+  {
+    if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+  }
+	
+  I2C_SendData (0xFA);         //Command for readout on-chip memory
+  I2C_SendData (0x0F);         //on-chip memory address
+  I2C_GenerateSTART(ENABLE);
+  I2C_SendData (I2C_ADR_R);    //I2C address
+  I2C_AcknowledgeConfig(I2C_ACK_CURR);
+  u8SerialNumber[5] = I2C_ReceiveData(); //Read SNB_3
+  I2C_ReceiveData();                     //Read CRC SNB_3 (CRC is not analyzed)
+  u8SerialNumber[4] = I2C_ReceiveData(); //Read SNB_2
+  I2C_ReceiveData();                     //Read CRC SNB_2 (CRC is not analyzed)
+  u8SerialNumber[3] = I2C_ReceiveData(); //Read SNB_1
+  I2C_ReceiveData();                     //Read CRC SNB_1 (CRC is not analyzed)
+  u8SerialNumber[2] = I2C_ReceiveData(); //Read SNB_0
+  I2C_AcknowledgeConfig(I2C_ACK_NONE);
+  //I2C_ReceiveData(NO_ACK);                  //Read CRC SNB_0 (CRC is not analyzed)
+	I2C_ReceiveData();                  //Read CRC SNB_0 (CRC is not analyzed)
+  I2C_GenerateSTOP(ENABLE);
+
+  //Read from memory location 2
+  I2C_GenerateSTART(ENABLE);
+  I2C_SendData (I2C_ADR_W);    //I2C address
+  I2C_SendData (0xFC);         //Command for readout on-chip memory
+  I2C_SendData (0xC9);         //on-chip memory address
+  I2C_GenerateSTART(ENABLE);
+  I2C_SendData (I2C_ADR_R);    //I2C address
+  u8SerialNumber[1] = I2C_ReceiveData(); //Read SNC_1
+  u8SerialNumber[0] = I2C_ReceiveData(); //Read SNC_0
+  I2C_ReceiveData();                     //Read CRC SNC0/1 (CRC is not analyzed)
+  u8SerialNumber[7] = I2C_ReceiveData(); //Read SNA_1
+  u8SerialNumber[6] = I2C_ReceiveData(); //Read SNA_0
+	I2C_AcknowledgeConfig(I2C_ACK_NONE);
+//  I2C_ReceiveData(NO_ACK);                  //Read CRC SNA0/1 (CRC is not analyzed)
+  I2C_ReceiveData();                  //Read CRC SNA0/1 (CRC is not analyzed)
+  I2C_GenerateSTOP(ENABLE);
+
+  return error;
+}
+uint8_t SerialNumber_SHT2x[8];  //64bit serial number
+
+/**
+  * @brief  I2C Interrupt routine
+  * @param None
+  * @retval
+  * None
+  */
+INTERRUPT_HANDLER(I2C_IRQHandler, 19)
+{
+  switch (I2C_GetLastEvent())
+  {
+      /* EV5 */
+    case I2C_EVENT_MASTER_MODE_SELECT :
+
+#ifdef TEN_BITS_ADDRESS
+      /* Send Header to Slave for write */
+      I2C_SendData(HEADER_ADDRESS_Write);
+      break;
+
+      /* EV9 */
+    case I2C_EVENT_MASTER_MODE_ADDRESS10:
+      /* Send slave Address for write */
+      I2C_Send7bitAddress(SLAVE_ADDRESS, I2C_DIRECTION_TX);
+      break;
+#else
+      /* Send slave Address for write */
+      I2C_Send7bitAddress(SLAVE_ADDRESS, I2C_DIRECTION_TX);
+      break;
+#endif
+      /* EV6 */
+    case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:
+      //if (NumOfBytes != 0)
+      //{
+        /* Send the first Data */
+       // I2C_SendData(TxBuffer[Tx_Idx++]);
+
+        /* Decrement number of bytes */
+        //NumOfBytes--;
+      //}
+      //if (NumOfBytes == 0)
+      //{
+      //  I2C_ITConfig(I2C_IT_BUF, DISABLE);
+      //}
+      break;
+
+      /* EV8 */
+    case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
+      /* Transmit Data */
+     // I2C_SendData(TxBuffer[Tx_Idx++]);
+
+      /* Decrement number of bytes */
+//      NumOfBytes--;
+
+  //    if (NumOfBytes == 0)
+    //  {
+        I2C_ITConfig(I2C_IT_BUF, DISABLE);
+      //}
+      break;
+
+      /* EV8_2 */
+    case I2C_EVENT_MASTER_BYTE_TRANSMITTED:
+      /* Send STOP condition */
+      I2C_GenerateSTOP(ENABLE);
+
+      I2C_ITConfig(I2C_IT_EVT, DISABLE);
+      break;
+
+    default:
+      break;
+  }
+}
+
 void main(void)
 {
 	GPIO_DeInit(GPIOD); // prepare Port D for working 
@@ -321,6 +559,28 @@ void main(void)
 	GPIO_Init (RC11XX_RST_PIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
 	GPIO_Init (RC11XX_CFG_PIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
 	
+	
+	GPIO_DeInit(GPIOB);
+
+	GPIO_Init(GPIOB, GPIO_PIN_4, GPIO_MODE_OUT_OD_HIZ_FAST);
+
+	GPIO_Init(GPIOB, GPIO_PIN_5, GPIO_MODE_OUT_OD_HIZ_FAST);
+	
+	GPIO_DeInit(GPIOC);
+
+	GPIO_Init(GPIOC, GPIO_PIN_3, GPIO_MODE_IN_PU_NO_IT);
+	
+//	I2C_DeInit();
+		 
+	//I2C Init 
+//	I2C_Init(100000, 128, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT,(CLK_GetClockFreq() / 1000000));
+	
+//	I2C_Cmd(ENABLE);
+	  /* Enable Buffer and Event Interrupt*/
+  //I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_EVT | I2C_IT_BUF) , ENABLE);
+	
+	
+	//SHT2x_GetSerialNumber(SerialNumber_SHT2x);	
 	rc_configure_ed();
 	
 	while (1) {

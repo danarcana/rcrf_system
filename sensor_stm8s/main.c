@@ -38,6 +38,21 @@ typedef enum
 } rc11xx_ima_on_connect_t;
 
 
+typedef union {
+		uint16_t u16; // element specifier for accessing whole u16
+		int16_t i16; // element specifier for accessing whole i16
+		struct 
+		{
+#ifdef LITTLE_ENDIAN // Byte-order is little endian
+		uint8_t u8L; // element specifier for accessing low u8
+		uint8_t u8H; // element specifier for accessing high u8
+#else // Byte-order is big endian
+		uint8_t u8H; // element specifier for accessing low u8
+		uint8_t u8L; // element specifier for accessing high u8
+#endif
+		} s16; // element spec. for acc. struct with low or high u8
+}int16Union;
+
 #define RC11XX_CMD_SET_SLEEP_MODE					'Z'
 #define RC11XX_CMD_ALTERNATE_SLEEP_MODE		'z'
 #define RC11XX_CMD_GET_VOLTAGE						'V'
@@ -113,11 +128,25 @@ typedef struct
 } rc11xx_config_mem_t;
 
 rc11xx_config_mem_t  rc_config_mem = {0};
+uint8_t SerialNumber_SHT2x[8];  //64bit serial number
+int16Union sts21_temperature = {0};
 
 bool rc_enter_config(void);
 void rc_exit_config(void);
 void rc_configure_ed(void);
 void rc_hw_reset(void);
+
+void I2C_ClearBusyFlagErrata_2_14_7(void);
+uint8_t SHT2x_SoftReset(void);
+
+
+uint8_t I2C_CheckBusy(void);
+uint8_t I2C_StartCondition(void);
+uint8_t I2C_SendAddress(uint8_t address);
+uint8_t I2C_WriteByte(uint8_t data);
+uint8_t I2C_ReadByte(void);
+float SHT2x_CalcTemperatureC(uint16_t u16sT);
+uint16_t SHT2x_MeasureTempHoldMaster(void);
 
 void USART_TX(unsigned char val) {
   UART1_DR = val;
@@ -161,13 +190,30 @@ void assert_failed(uint8_t* file, uint32_t line)
 #define F_CPU 2000000UL
 #endif
 
-//#include <stdint.h>
-void delay_ms(uint32_t ms) {
-    uint32_t i;
-    for (i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
-        _asm("nop");
-    }
+
+#if defined(__CSMC__)
+static @inline void _delay_cycl( unsigned short __ticks )
+{
+/* COSMIC */  
+	#define T_COUNT(x) (( x * (FCLK / 1000000UL) )-3)/3)
+	// ldw X, __ticks ; insert automaticaly
+	_asm("nop\n $N:\n decw X\n jrne $L\n nop\n ", __ticks);
 }
+#endif
+
+
+void delay_ms(uint32_t ms) 
+{
+    uint32_t i;
+//   for (i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+//        _asm("nop");
+//    }
+	for (i = 0; i < ms; i++) 
+	{
+			_delay_cycl((unsigned short) (T_COUNT(1000));
+	}
+}
+
 
 
 //void delay(int ms) //Function Definition 
@@ -327,11 +373,11 @@ void rc_configure_ed()
 		config_array[config_array_idx] = RC11XX_CFG_PROTOCOL_MODE; config_array_idx++;
 	}
 
-	if (rc_config_mem.indicators_on!=RC11XX_INDICATORS_OFF)
+	if (rc_config_mem.indicators_on!=RC11XX_INDICATORS_ON)
 	{
 //		rc_write_config_value(RC11XX_ADDRESS_CFG_MEM_INDICATORS_ON,RC11XX_INDICATORS_OFF);
 		config_array[config_array_idx] = RC11XX_ADDRESS_CFG_MEM_INDICATORS_ON; config_array_idx++;
-		config_array[config_array_idx] = RC11XX_INDICATORS_OFF; config_array_idx++;
+		config_array[config_array_idx] = RC11XX_INDICATORS_ON; config_array_idx++;
 	}
 	
 	if (rc_config_mem.ima_on_connect!=RC11XX_IMA_ON_CONNECT_OFF)
@@ -361,11 +407,19 @@ void rc_configure_ed()
 	//rc_hw_reset();
 }
 uint8_t counter_tx=0;
-#define SLAVE_ADDRESS  128
+
 typedef enum{
-  I2C_ADR_W                = 128,   // sensor I2C address + write bit
-  I2C_ADR_R                = 129    // sensor I2C address + read bit
-}etI2cHeader;
+  I2C_ADR_W   = 0x94,   // sensor I2C address + write bit
+  I2C_ADR_R		= 0x95    // sensor I2C address + read bit
+}etSTS21Address;
+
+typedef enum{
+TRIG_T_MEASUREMENT_HM = 0xE3, // command trig. temp meas. hold master
+TRIG_T_MEASUREMENT_POLL = 0xF3, // command trig. temp meas. no hold master
+USER_REG_W = 0xE6, // command writing user register
+USER_REG_R = 0xE7, // command reading user register
+SOFT_RESET 	= 0xFE // command soft reset
+}etSHT2xCommand;
 
 
 /* Maximum Timeout values for flags and events waiting loops. These timeouts are
@@ -383,7 +437,7 @@ __IO uint32_t  sEETimeout = sEE_LONG_TIMEOUT;
   * @param  None.
   * @retval None.
   */
-uint32_t sEE_TIMEOUT_UserCallback(void)
+uint8_t sEE_TIMEOUT_UserCallback(void)
 {
   /* User application may try to recover the communication by resetting I2C
     peripheral (calling the function I2C_SoftwareResetCmd()) then re-start
@@ -399,37 +453,366 @@ uint32_t sEE_TIMEOUT_UserCallback(void)
   }  
 }
 
-
-//==============================================================================
-uint8_t SHT2x_GetSerialNumber(uint8_t u8SerialNumber[])
-//==============================================================================
+/** 
+  * @brief  GPIO Bit SET and Bit RESET enumeration 
+  */
+typedef enum
 {
-  uint8_t  error=0;                          //error variable
-	
+  GPIO_PIN_RESET = 0U,
+  GPIO_PIN_SET
+}GPIO_PinState;
+
+
+
+/* USER CODE BEGIN 1 */
+/**
+1. Disable the I2C peripheral by clearing the PE bit in I2Cx_CR1 register.
+2. Configure the SCL and SDA I/Os as General Purpose Output Open-Drain, High level
+(Write 1 to GPIOx_ODR).
+3. Check SCL and SDA High level in GPIOx_IDR.
+4. Configure the SDA I/O as General Purpose Output Open-Drain, Low level (Write 0 to
+GPIOx_ODR).
+5. Check SDA Low level in GPIOx_IDR.
+6. Configure the SCL I/O as General Purpose Output Open-Drain, Low level (Write 0 to
+GPIOx_ODR).
+7. Check SCL Low level in GPIOx_IDR.
+8. Configure the SCL I/O as General Purpose Output Open-Drain, High level (Write 1 to
+GPIOx_ODR).
+9. Check SCL High level in GPIOx_IDR.
+10. Configure the SDA I/O as General Purpose Output Open-Drain , High level (Write 1 to
+GPIOx_ODR).
+11. Check SDA High level in GPIOx_IDR.
+12. Configure the SCL and SDA I/Os as Alternate function Open-Drain.
+13. Set SWRST bit in I2Cx_CR1 register.
+14. Clear SWRST bit in I2Cx_CR1 register.
+15. Enable the I2C peripheral by setting the PE bit in I2Cx_CR1 register.
+**/
+void I2C_ClearBusyFlagErrata_2_14_7(void) {
+
+		uint8_t SDA_PIN = GPIO_PIN_4;
+    uint8_t SCL_PIN = GPIO_PIN_5;
+		
+
+		static uint8_t resetTried = 0;
+    if (resetTried == 1) {
+        return ;
+    }
+    //uint32_t SDA_PIN = NUCLEO_I2C_EXPBD_SDA_PIN;
+    //uint32_t SCL_PIN = NUCLEO_I2C_EXPBD_SCL_PIN;
+
+ //   GPIO_InitTypeDef GPIO_InitStruct;
+
+    // 1
+//    __HAL_I2C_DISABLE(hi2c);
+		I2C_Cmd( DISABLE);
+
+    // 2
+//    GPIO_InitStruct.Pin = SDA_PIN|SCL_PIN;
+//    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+//    GPIO_InitStruct.Pull = GPIO_NOPULL;
+//    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+//    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+//    HAL_GPIO_WRITE_ODR(GPIOB, SDA_PIN);
+//    HAL_GPIO_WRITE_ODR(GPIOB, SCL_PIN);
+
+		GPIO_Init(GPIOB, SDA_PIN, GPIO_MODE_OUT_OD_HIZ_FAST);
+
+		GPIO_Init(GPIOB, SCL_PIN, GPIO_MODE_OUT_OD_HIZ_FAST);
+		
+		GPIO_Write(GPIOB, SDA_PIN|SCL_PIN);
+//		GPIO_Write(GPIOB, GPIO_PIN_5);
+
+
+    // 3
+ //   GPIO_PinState pinState;
+//    if (HAL_GPIO_ReadPin(GPIOB, SDA_PIN) == GPIO_PIN_RESET) {
+//        for(;;){}
+//    }
+//    if (HAL_GPIO_ReadPin(GPIOB, SCL_PIN) == GPIO_PIN_RESET) {
+//        for(;;){}
+//    }
+		if (GPIO_ReadInputPin(GPIOB, SDA_PIN) == GPIO_PIN_RESET) {
+        for(;;){}
+    }
+    if (GPIO_ReadInputPin(GPIOB, SCL_PIN) == GPIO_PIN_RESET) {
+        //for(;;){}
+    }
+		
+    // 4
+//    GPIO_InitStruct.Pin = SDA_PIN;
+//    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		
+		GPIO_Init(GPIOB, SDA_PIN, GPIO_MODE_OUT_OD_HIZ_FAST);
+
+    //HAL_GPIO_TogglePin(GPIOB, SDA_PIN);
+		GPIO_WriteLow(GPIOB, SDA_PIN);
+
+    // 5
+    if (GPIO_ReadInputPin(GPIOB, SDA_PIN) == GPIO_PIN_SET) {
+        for(;;){}
+    }
+
+    // 6
+    //GPIO_InitStruct.Pin = SCL_PIN;
+    //HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    //HAL_GPIO_TogglePin(GPIOB, SCL_PIN);
+		GPIO_Init(GPIOB, SCL_PIN, GPIO_MODE_OUT_OD_HIZ_FAST);
+		
+		GPIO_WriteLow(GPIOB, SCL_PIN);
+
+    // 7
+    if (GPIO_ReadInputPin(GPIOB, SCL_PIN) == GPIO_PIN_SET) {
+        for(;;){}
+    }
+
+    // 8
+   // GPIO_InitStruct.Pin = SDA_PIN;
+   // HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    //HAL_GPIO_WRITE_ODR(GPIOB, SDA_PIN);
+		GPIO_Init(GPIOB, SDA_PIN, GPIO_MODE_OUT_OD_HIZ_FAST);
+		GPIO_Write(GPIOB, SDA_PIN);
+
+    // 9
+    if (GPIO_ReadInputPin(GPIOB, SDA_PIN) == GPIO_PIN_RESET) {
+        for(;;){}
+    }
+
+    // 10
+    //GPIO_InitStruct.Pin = SCL_PIN;
+    //HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    //HAL_GPIO_WRITE_ODR(GPIOB, SCL_PIN);
+		
+		GPIO_Init(GPIOB, SCL_PIN, GPIO_MODE_OUT_OD_HIZ_FAST);
+		GPIO_Write(GPIOB, SDA_PIN|SCL_PIN);
+
+    // 11
+    if (GPIO_ReadInputPin(GPIOB, SCL_PIN) == GPIO_PIN_RESET) {
+        //for(;;){}
+    }
+
+    // 12
+//    GPIO_InitStruct.Pin = SDA_PIN|SCL_PIN;
+//    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+//    GPIO_InitStruct.Alternate = NUCLEO_I2C_EXPBD_SCL_SDA_AF;
+//    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+   // 13
+   //hi2c->Instance->CR1 |= I2C_CR1_SWRST;
+	 I2C->CR2 |= I2C_CR2_SWRST;
+
+   // 14
+   //hi2c->Instance->CR1 ^= I2C_CR1_SWRST;
+	 I2C->CR2 ^= I2C_CR2_SWRST;
+
+   // 15
+   //__HAL_I2C_ENABLE(hi2c);
+
+	I2C_Cmd(ENABLE);
+   resetTried = 1;
+}
+
+//void HAL_GPIO_WRITE_ODR(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+//{
+  /* Check the parameters */
+  //assert_param(IS_GPIO_PIN(GPIO_Pin));
+
+  //GPIOx->ODR |= GPIO_Pin;
+//}
+
+uint8_t I2C_CheckBusy(void)
+{
 	/* While the bus is busy */
-//  sEETimeout = sEE_LONG_TIMEOUT;
-//  while(I2C_GetFlagStatus( I2C_FLAG_BUSBUSY))
-//  {
-//    if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
-//  }
-	
+  sEETimeout = sEE_LONG_TIMEOUT;
+  while(I2C_GetFlagStatus( I2C_FLAG_BUSBUSY))
+  {
+    if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+  }
+}
+
+uint8_t I2C_StartCondition(void)
+{
 	 /* Send START condition */
   I2C_GenerateSTART(ENABLE);
-
+	
   /* Test on EV5 and clear it (cleared by reading SR1 then writing to DR) */
   sEETimeout = sEE_FLAG_TIMEOUT;
   while(!I2C_CheckEvent( I2C_EVENT_MASTER_MODE_SELECT))
   {
     if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
   }
+}
 
-  /* Send EEPROM address for write */
-  I2C_Send7bitAddress( (uint8_t)I2C_ADR_W, I2C_DIRECTION_TX);
+uint8_t I2C_SendAddress(uint8_t address)
+{
+  I2C_SendData(address);    //I2C address
 
+  /* Test on EV6 and clear it */
+  sEETimeout = sEE_FLAG_TIMEOUT;
+	if (address&0x01)
+	{
+		while(!I2C_CheckEvent( I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
+		{
+			if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+		}
+	}
+	else
+	{
+		while(!I2C_CheckEvent( I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+		{
+			if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+		}
+	}
+}
 
+uint8_t I2C_WriteByte(uint8_t data)
+{
+	I2C_SendData(data);         //Command for readout on-chip memory
 	
-//  I2C_SendData (I2C_ADR_W);    //I2C address
+	/* Test on EV8 and clear it */
+  sEETimeout = sEE_FLAG_TIMEOUT;
+	//Event = I2C_GetLastEvent();
+  while(!I2C_CheckEvent( I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+  {
+		//Event = I2C_GetLastEvent();
+			if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+  }
+}
 
+uint8_t I2C_ReadByte(void)
+{
+	while ((I2C_GetFlagStatus(I2C_FLAG_RXNOTEMPTY) == RESET)); /* Poll on RxNE */
+	return I2C_ReceiveData();
+}
+
+uint8_t I2C_StopCondition(void)
+{
+	I2C_GenerateSTOP(ENABLE);
+}
+//==============================================================================
+uint8_t SHT2x_GetSerialNumber(uint8_t u8SerialNumber[])
+//==============================================================================
+{
+  uint8_t  error=0;                          //error variable
+	uint16_t Event = 0;
+	
+	I2C_CheckBusy();
+	I2C_StartCondition();
+	I2C_SendAddress(I2C_ADR_W);
+	I2C_WriteByte(0xFA);
+	I2C_WriteByte(0x0F);
+
+	I2C_StartCondition();
+	I2C_SendAddress(I2C_ADR_R);
+	
+	u8SerialNumber[5] = I2C_ReadByte(); //Read SNB_3
+  I2C_ReadByte();                     //Read CRC SNB_3 (CRC is not analyzed)
+  u8SerialNumber[4] = I2C_ReadByte(); //Read SNB_2
+  I2C_ReadByte();                     //Read CRC SNB_2 (CRC is not analyzed)
+  u8SerialNumber[3] = I2C_ReadByte(); //Read SNB_1
+  I2C_ReadByte();                     //Read CRC SNB_1 (CRC is not analyzed)
+  u8SerialNumber[2] = I2C_ReadByte(); //Read SNB_0
+  I2C_AcknowledgeConfig(I2C_ACK_NONE);
+	I2C_ReadByte();                  //Read CRC SNB_0 (CRC is not analyzed)
+	
+	I2C_GenerateSTOP(ENABLE);
+
+  //Read from memory location 2
+  I2C_StartCondition();
+	I2C_SendAddress(I2C_ADR_W);
+	I2C_WriteByte(0xFC);
+	I2C_WriteByte(0xC9);
+	I2C_StartCondition();
+	I2C_SendAddress(I2C_ADR_R);
+	I2C_AcknowledgeConfig(I2C_ACK_CURR);
+  u8SerialNumber[1] = I2C_ReadByte(); //Read SNC_1
+  u8SerialNumber[0] = I2C_ReadByte(); //Read SNC_0
+  I2C_ReadByte();                     //Read CRC SNC0/1 (CRC is not analyzed)
+  u8SerialNumber[7] = I2C_ReadByte(); //Read SNA_1
+  u8SerialNumber[6] = I2C_ReadByte(); //Read SNA_0
+	I2C_AcknowledgeConfig(I2C_ACK_NONE);
+  I2C_ReadByte();                  //Read CRC SNA0/1 (CRC is not analyzed)
+  I2C_GenerateSTOP(ENABLE);
+	
+  return error;
+}
+
+float SHT2x_CalcTemperatureC(uint16_t u16sT)
+{
+	float temperatureC; // variable for result
+	u16sT &= ~0x0003; // clear bits [1..0] (status bits)
+	//-- calculate temperature [°C] --
+	temperatureC= -46.85 + 175.72/65536 *(float)u16sT; //T= -46.85 + 175.72 * ST/2^16
+	return temperatureC;
+}
+
+
+
+uint16_t SHT2x_MeasureTempHoldMaster(void)
+{
+		uint8_t checksum; //checksum
+		uint8_t data[2]; //data array for checksum verification
+		uint8_t error=0; //error variable
+		uint16_t i; //counting variable
+		//-- write I2C sensor address and command --
+		I2C_StartCondition();
+		//error |= I2C_WriteByte(I2C_ADR_W); // I2C Adr
+		error |= I2C_SendAddress(I2C_ADR_W); // I2C Adr
+		error |= I2C_WriteByte(TRIG_T_MEASUREMENT_HM);
+		//-- wait until hold master is released --
+		I2C_StartCondition();
+		error |= I2C_SendAddress(I2C_ADR_R);
+//		SCL=HIGH; // set SCL I/O port as input
+		for(i=0; i<100; i++) // wait until master hold is released or
+		{
+		  delay_ms(10);
+//			DelayMicroSeconds(1000); // a timeout (~1s) is reached
+//			if (SCL_CONF==1) break;
+		}
+		//-- check for timeout --
+//		if(SCL_CONF==0) error |= TIME_OUT_ERROR;
+		//-- read two data bytes and one checksum byte --
+		//sts21_temperature.s16.u8H = data[0] = I2C_ReadByte(ACK);
+		//sts21_temperature.s16.u8L = data[1] = I2C_ReadByte(ACK);
+		
+		sts21_temperature.s16.u8H = data[0] = I2C_ReadByte();
+		sts21_temperature.s16.u8L = data[1] = I2C_ReadByte();
+		
+		//checksum=I2C_ReadByte(NO_ACK);
+		checksum=I2C_ReadByte();
+		//-- verify checksum --
+//		error |= SHT2x_CheckCrc(data,2,checksum);
+		I2C_StopCondition();
+		return error;
+}
+
+uint8_t SHT2x_SoftReset(void)
+{
+	uint8_t error=0; //error variable
+	//I2c_StartCondition();
+	I2C_GenerateSTART(ENABLE);
+	
+	  /* Test on EV5 and clear it */
+  while (!I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT));
+	
+	//error |= I2c_WriteByte (I2C_ADR_W); // I2C Adr
+	//error |= I2c_WriteByte (SOFT_RESET); // Command
+	I2C_SendData (I2C_ADR_W);    //I2C address
+	
+  /* Send EEPROM address for write */
+  //I2C_Send7bitAddress( (uint8_t)0x80, I2C_DIRECTION_TX);
+
+  /* Test on EV6 and clear it */
+  sEETimeout = sEE_FLAG_TIMEOUT;
+  while(!I2C_CheckEvent( I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+  {
+    if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
+  }
+	
+	I2C_SendData (SOFT_RESET);    
 	
 	/* Test on EV8 and clear it */
   sEETimeout = sEE_FLAG_TIMEOUT;
@@ -438,115 +821,11 @@ uint8_t SHT2x_GetSerialNumber(uint8_t u8SerialNumber[])
     if((sEETimeout--) == 0) return sEE_TIMEOUT_UserCallback();
   }
 	
-  I2C_SendData (0xFA);         //Command for readout on-chip memory
-  I2C_SendData (0x0F);         //on-chip memory address
-  I2C_GenerateSTART(ENABLE);
-  I2C_SendData (I2C_ADR_R);    //I2C address
-  I2C_AcknowledgeConfig(I2C_ACK_CURR);
-  u8SerialNumber[5] = I2C_ReceiveData(); //Read SNB_3
-  I2C_ReceiveData();                     //Read CRC SNB_3 (CRC is not analyzed)
-  u8SerialNumber[4] = I2C_ReceiveData(); //Read SNB_2
-  I2C_ReceiveData();                     //Read CRC SNB_2 (CRC is not analyzed)
-  u8SerialNumber[3] = I2C_ReceiveData(); //Read SNB_1
-  I2C_ReceiveData();                     //Read CRC SNB_1 (CRC is not analyzed)
-  u8SerialNumber[2] = I2C_ReceiveData(); //Read SNB_0
-  I2C_AcknowledgeConfig(I2C_ACK_NONE);
-  //I2C_ReceiveData(NO_ACK);                  //Read CRC SNB_0 (CRC is not analyzed)
-	I2C_ReceiveData();                  //Read CRC SNB_0 (CRC is not analyzed)
-  I2C_GenerateSTOP(ENABLE);
-
-  //Read from memory location 2
-  I2C_GenerateSTART(ENABLE);
-  I2C_SendData (I2C_ADR_W);    //I2C address
-  I2C_SendData (0xFC);         //Command for readout on-chip memory
-  I2C_SendData (0xC9);         //on-chip memory address
-  I2C_GenerateSTART(ENABLE);
-  I2C_SendData (I2C_ADR_R);    //I2C address
-  u8SerialNumber[1] = I2C_ReceiveData(); //Read SNC_1
-  u8SerialNumber[0] = I2C_ReceiveData(); //Read SNC_0
-  I2C_ReceiveData();                     //Read CRC SNC0/1 (CRC is not analyzed)
-  u8SerialNumber[7] = I2C_ReceiveData(); //Read SNA_1
-  u8SerialNumber[6] = I2C_ReceiveData(); //Read SNA_0
-	I2C_AcknowledgeConfig(I2C_ACK_NONE);
-//  I2C_ReceiveData(NO_ACK);                  //Read CRC SNA0/1 (CRC is not analyzed)
-  I2C_ReceiveData();                  //Read CRC SNA0/1 (CRC is not analyzed)
-  I2C_GenerateSTOP(ENABLE);
-
-  return error;
+	//I2c_StopCondition();
+	I2C_GenerateSTOP(ENABLE);
+	delay_ms(130); // wait till sensor has restarted
+	return error;
 }
-uint8_t SerialNumber_SHT2x[8];  //64bit serial number
-
-/**
-  * @brief  I2C Interrupt routine
-  * @param None
-  * @retval
-  * None
-  */
-INTERRUPT_HANDLER(I2C_IRQHandler, 19)
-{
-  switch (I2C_GetLastEvent())
-  {
-      /* EV5 */
-    case I2C_EVENT_MASTER_MODE_SELECT :
-
-#ifdef TEN_BITS_ADDRESS
-      /* Send Header to Slave for write */
-      I2C_SendData(HEADER_ADDRESS_Write);
-      break;
-
-      /* EV9 */
-    case I2C_EVENT_MASTER_MODE_ADDRESS10:
-      /* Send slave Address for write */
-      I2C_Send7bitAddress(SLAVE_ADDRESS, I2C_DIRECTION_TX);
-      break;
-#else
-      /* Send slave Address for write */
-      I2C_Send7bitAddress(SLAVE_ADDRESS, I2C_DIRECTION_TX);
-      break;
-#endif
-      /* EV6 */
-    case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:
-      //if (NumOfBytes != 0)
-      //{
-        /* Send the first Data */
-       // I2C_SendData(TxBuffer[Tx_Idx++]);
-
-        /* Decrement number of bytes */
-        //NumOfBytes--;
-      //}
-      //if (NumOfBytes == 0)
-      //{
-      //  I2C_ITConfig(I2C_IT_BUF, DISABLE);
-      //}
-      break;
-
-      /* EV8 */
-    case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
-      /* Transmit Data */
-     // I2C_SendData(TxBuffer[Tx_Idx++]);
-
-      /* Decrement number of bytes */
-//      NumOfBytes--;
-
-  //    if (NumOfBytes == 0)
-    //  {
-        I2C_ITConfig(I2C_IT_BUF, DISABLE);
-      //}
-      break;
-
-      /* EV8_2 */
-    case I2C_EVENT_MASTER_BYTE_TRANSMITTED:
-      /* Send STOP condition */
-      I2C_GenerateSTOP(ENABLE);
-
-      I2C_ITConfig(I2C_IT_EVT, DISABLE);
-      break;
-
-    default:
-      break;
-  }
-}
-
 void main(void)
 {
 	GPIO_DeInit(GPIOD); // prepare Port D for working 
@@ -556,6 +835,7 @@ void main(void)
 	UART1_BRR1 = 0x34;  // 19200 baud
   UART1_CR3 &= ~((1 << 4) | (1 << 5)); //1 STOP BIT
   UART1_CR2 |= (1 << 2) | (1 << 3); //ENABLE TX AND RX
+	
 	GPIO_Init (RC11XX_RST_PIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
 	GPIO_Init (RC11XX_CFG_PIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
 	
@@ -570,21 +850,42 @@ void main(void)
 
 	GPIO_Init(GPIOC, GPIO_PIN_3, GPIO_MODE_IN_PU_NO_IT);
 	
-//	I2C_DeInit();
+  
+	I2C_DeInit();
+	I2C_ClearBusyFlagErrata_2_14_7();
+	I2C_Cmd(ENABLE);
+	
+	//I2C_DeInit();
 		 
+	
+	
+	//I2C_Cmd( DISABLE);
 	//I2C Init 
-//	I2C_Init(100000, 128, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT,(CLK_GetClockFreq() / 1000000));
+ 	I2C_Init(88000, 0x200, I2C_DUTYCYCLE_16_9, I2C_ACK_CURR, I2C_ADDMODE_7BIT,(CLK_GetClockFreq() / 1000000));
+	//I2C_Init(88000, 128, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT,16);
+	//I2C_Init_Test();
+	//I2C->CR2 |= I2C_CR2_SWRST;
+	//CLK->PCKENR1 |= CLK_PCKENR1_I2C1;
 	
-//	I2C_Cmd(ENABLE);
+	CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C, ENABLE);
+	
+	
+	I2C_Cmd(ENABLE);
 	  /* Enable Buffer and Event Interrupt*/
-  //I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_EVT | I2C_IT_BUF) , ENABLE);
+	I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_ERR), ENABLE);
+	//I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_ERR | I2C_IT_EVT | I2C_IT_BUF), ENABLE);
+	//delay_ms(500);
+	enableInterrupts();
 	
-	
-	//SHT2x_GetSerialNumber(SerialNumber_SHT2x);	
+	SHT2x_SoftReset();
+	SHT2x_GetSerialNumber(SerialNumber_SHT2x);	
 	rc_configure_ed();
 	
 	while (1) {
-		delay_ms(450);
+		delay_ms(4500);
+//		_delay_cycl((unsigned short) (T_COUNT(10000));
+		SHT2x_MeasureTempHoldMaster();
+		SHT2x_CalcTemperatureC(sts21_temperature.u16);
 		USART_TX(counter_tx);
 		USART_TX(counter_tx);
 		USART_TX(counter_tx);

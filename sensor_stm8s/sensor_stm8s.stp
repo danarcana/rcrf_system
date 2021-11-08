@@ -295,6 +295,11 @@ Next=Root.Source Files.stm8_interrupt_vector.c
 [Root.Source Files.stm8_interrupt_vector.c]
 ElemType=File
 PathName=stm8_interrupt_vector.c
+Next=Root.Source Files.stm8s_it.c
+
+[Root.Source Files.stm8s_it.c]
+ElemType=File
+PathName=stm8s_it.c
 Next=Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_clk.c
 
 [Root.Source Files.stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_clk.c]

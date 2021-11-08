@@ -77,7 +77,6 @@ ADC1_GetFlagStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8
 ADC1_GetITStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc1.h	329;"	prototype	signature:(ADC1_IT_TypeDef ITPendingBit)
 ADC1_HTRH_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	350;"	macro
 ADC1_HTRL_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	349;"	macro
-ADC1_IRQHandler	stm8s_it.h	103;"	prototype	signature:(void)
 ADC1_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc1.h	312;"	prototype	signature:(ADC1_IT_TypeDef ADC1_IT, FunctionalState NewState)
 ADC1_IT_AWD	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc1.h	81;"	enumerator	enum:__anon27
 ADC1_IT_AWDIE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc1.h	79;"	enumerator	enum:__anon27
@@ -179,7 +178,6 @@ ADC2_ExternalTriggerConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\
 ADC2_GetConversionValue	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc2.h	244;"	prototype	signature:(void)
 ADC2_GetFlagStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc2.h	245;"	prototype	signature:(void)
 ADC2_GetITStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc2.h	247;"	prototype	signature:(void)
-ADC2_IRQHandler	stm8s_it.h	101;"	prototype	signature:(void)
 ADC2_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc2.h	235;"	prototype	signature:(FunctionalState NewState)
 ADC2_Init	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc2.h	226;"	prototype	signature:(ADC2_ConvMode_TypeDef ADC2_ConversionMode, ADC2_Channel_TypeDef ADC2_Channel, ADC2_PresSel_TypeDef ADC2_PrescalerSelection, ADC2_ExtTrig_TypeDef ADC2_ExtTrigger, FunctionalState ADC2_ExtTriggerState, ADC2_Align_TypeDef ADC2_Align, ADC2_SchmittTrigg_TypeDef ADC2_SchmittTriggerChannel, FunctionalState ADC2_SchmittTriggerState)
 ADC2_PRESSEL_FCPU_D10	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_adc2.h	52;"	enumerator	enum:__anon32
@@ -243,7 +241,6 @@ AWU_CSR_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm
 AWU_Cmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_awu.h	135;"	prototype	signature:(FunctionalState NewState)
 AWU_DeInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_awu.h	133;"	prototype	signature:(void)
 AWU_GetFlagStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_awu.h	138;"	prototype	signature:(void)
-AWU_IRQHandler	stm8s_it.h	47;"	prototype	signature:(void)
 AWU_IdleModeEnable	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_awu.h	137;"	prototype	signature:(void)
 AWU_Init	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_awu.h	134;"	prototype	signature:(AWU_Timebase_TypeDef AWU_TimeBase)
 AWU_LSICalibrationConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_awu.h	136;"	prototype	signature:(uint32_t LSIFreqHz)
@@ -560,7 +557,6 @@ CAN_RFR_RFOM	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	23
 CAN_RTR_Data	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	225;"	enumerator	enum:__anon55
 CAN_RTR_Remote	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	226;"	enumerator	enum:__anon55
 CAN_RTR_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	227;"	typedef	typeref:enum:__anon55
-CAN_RX_IRQHandler	stm8s_it.h	60;"	prototype	signature:(void)
 CAN_Receive	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	497;"	prototype	signature:(void)
 CAN_ST7CompatibilityCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	486;"	prototype	signature:(CAN_ST7Compatibility_TypeDef CAN_ST7Compatibility)
 CAN_ST7Compatibility_Disable	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	306;"	enumerator	enum:__anon61
@@ -603,7 +599,6 @@ CAN_TSR_TXOK0	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2
 CAN_TSR_TXOK1	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2358;"	macro
 CAN_TSR_TXOK2	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2359;"	macro
 CAN_TTComModeCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	492;"	prototype	signature:(FunctionalState NewState)
-CAN_TX_IRQHandler	stm8s_it.h	61;"	prototype	signature:(void)
 CAN_Transmit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	487;"	prototype	signature:( uint32_t CAN_Id, CAN_Id_TypeDef CAN_IDE, CAN_RTR_TypeDef CAN_RTR, uint8_t CAN_DLC, uint8_t *CAN_Data)
 CAN_TransmitMailBox_0	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	198;"	enumerator	enum:__anon52
 CAN_TransmitMailBox_1	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_can.h	199;"	enumerator	enum:__anon52
@@ -767,7 +762,6 @@ CLK_ICKR_LSIEN	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	
 CLK_ICKR_LSIRDY	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	552;"	macro
 CLK_ICKR_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	531;"	macro
 CLK_ICKR_SWUAH	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	551;"	macro
-CLK_IRQHandler	stm8s_it.h	48;"	prototype	signature:(void)
 CLK_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_clk.h	364;"	prototype	signature:(CLK_IT_TypeDef CLK_IT, FunctionalState NewState)
 CLK_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_clk.c	459;"	function	signature:(CLK_IT_TypeDef CLK_IT, FunctionalState NewState)
 CLK_IT_CSSD	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_clk.h	167;"	enumerator	enum:__anon71
@@ -978,7 +972,6 @@ ECKR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	511;"	memb
 EEPROM	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	125;"	macro
 EEPROM	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	131;"	macro
 EEPROM	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	145;"	macro
-EEPROM_EEC_IRQHandler	stm8s_it.h	111;"	prototype	signature:(void)
 EGR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1067;"	member	struct:TIM4_struct
 EGR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1129;"	member	struct:TIM5_struct
 EGR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1267;"	member	struct:TIM6_struct
@@ -1003,12 +996,6 @@ EXTI_CR2_TLIS	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1
 EXTI_DeInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h	121;"	prototype	signature:(void)
 EXTI_GetExtIntSensitivity	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h	124;"	prototype	signature:(EXTI_Port_TypeDef Port)
 EXTI_GetTLISensitivity	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h	125;"	prototype	signature:(void)
-EXTI_PORTA_IRQHandler	stm8s_it.h	49;"	prototype	signature:(void)
-EXTI_PORTB_IRQHandler	stm8s_it.h	50;"	prototype	signature:(void)
-EXTI_PORTC_IRQHandler	stm8s_it.h	51;"	prototype	signature:(void)
-EXTI_PORTD_IRQHandler	stm8s_it.h	52;"	prototype	signature:(void)
-EXTI_PORTE_IRQHandler	stm8s_it.h	53;"	prototype	signature:(void)
-EXTI_PORTF_IRQHandler	stm8s_it.h	56;"	prototype	signature:(void)
 EXTI_PORT_GPIOA	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h	63;"	enumerator	enum:__anon76
 EXTI_PORT_GPIOB	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h	64;"	enumerator	enum:__anon76
 EXTI_PORT_GPIOC	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_exti.h	65;"	enumerator	enum:__anon76
@@ -1200,8 +1187,8 @@ FR14	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2223;"	mem
 FR15	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2224;"	member	struct:__anon15::__anon16::__anon18
 FR16	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2225;"	member	struct:__anon15::__anon16::__anon18
 FREQR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1332;"	member	struct:I2C_struct
-F_CPU	main.c	187;"	macro	file:
-F_CPU	main.c	190;"	macro	file:
+F_CPU	main.c	188;"	macro	file:
+F_CPU	main.c	191;"	macro	file:
 Filter	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2226;"	member	union:__anon15::__anon16	typeref:struct:__anon15::__anon16::__anon18
 Filter01	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2247;"	member	union:__anon15::__anon16	typeref:struct:__anon15::__anon16::__anon19
 Filter23	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2268;"	member	union:__anon15::__anon16	typeref:struct:__anon15::__anon16::__anon20
@@ -1261,9 +1248,9 @@ GPIO_PIN_7	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gpio.h
 GPIO_PIN_ALL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gpio.h	87;"	enumerator	enum:__anon84
 GPIO_PIN_HNIB	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gpio.h	86;"	enumerator	enum:__anon84
 GPIO_PIN_LNIB	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gpio.h	85;"	enumerator	enum:__anon84
-GPIO_PIN_RESET	main.c	454;"	enumerator	enum:__anon10	file:
-GPIO_PIN_SET	main.c	455;"	enumerator	enum:__anon10	file:
-GPIO_PinState	main.c	456;"	typedef	typeref:enum:__anon10	file:
+GPIO_PIN_RESET	main.c	462;"	enumerator	enum:__anon10	file:
+GPIO_PIN_SET	main.c	463;"	enumerator	enum:__anon10	file:
+GPIO_PinState	main.c	464;"	typedef	typeref:enum:__anon10	file:
 GPIO_Pin_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gpio.h	88;"	typedef	typeref:enum:__anon84
 GPIO_ReadInputData	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gpio.h	145;"	prototype	signature:(GPIO_TypeDef* GPIOx)
 GPIO_ReadInputData	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_gpio.c	202;"	function	signature:(GPIO_TypeDef* GPIOx)
@@ -1297,8 +1284,8 @@ I2C_ACK_NEXT	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.
 I2C_ACK_NONE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	55;"	enumerator	enum:__anon86
 I2C_ADDMODE_10BIT	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	66;"	enumerator	enum:__anon87
 I2C_ADDMODE_7BIT	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	65;"	enumerator	enum:__anon87
-I2C_ADR_R	main.c	406;"	enumerator	enum:__anon8	file:
-I2C_ADR_W	main.c	405;"	enumerator	enum:__anon8	file:
+I2C_ADR_R	main.c	414;"	enumerator	enum:__anon8	file:
+I2C_ADR_W	main.c	413;"	enumerator	enum:__anon8	file:
 I2C_Ack_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	58;"	typedef	typeref:enum:__anon86
 I2C_AcknowledgeConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	515;"	prototype	signature:(I2C_Ack_TypeDef Ack)
 I2C_AcknowledgeConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	345;"	function	signature:(I2C_Ack_TypeDef Ack)
@@ -1320,12 +1307,12 @@ I2C_CR2_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm
 I2C_CR2_START	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1382;"	macro
 I2C_CR2_STOP	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1381;"	macro
 I2C_CR2_SWRST	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1378;"	macro
-I2C_CheckBusy	main.c	143;"	prototype	file:	signature:(void)
-I2C_CheckBusy	main.c	619;"	function	signature:(void)
+I2C_CheckBusy	main.c	144;"	prototype	file:	signature:(void)
+I2C_CheckBusy	main.c	627;"	function	signature:(void)
 I2C_CheckEvent	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	603;"	prototype	signature:(I2C_Event_TypeDef I2C_Event)
 I2C_CheckEvent	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	578;"	function	signature:(I2C_Event_TypeDef I2C_Event)
-I2C_ClearBusyFlagErrata_2_14_7	main.c	139;"	prototype	file:	signature:(void)
-I2C_ClearBusyFlagErrata_2_14_7	main.c	483;"	function	signature:(void)
+I2C_ClearBusyFlagErrata_2_14_7	main.c	140;"	prototype	file:	signature:(void)
+I2C_ClearBusyFlagErrata_2_14_7	main.c	491;"	function	signature:(void)
 I2C_ClearFlag	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	620;"	prototype	signature:(I2C_Flag_TypeDef I2C_FLAG)
 I2C_ClearFlag	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	759;"	function	signature:(I2C_Flag_TypeDef I2C_FLAG)
 I2C_ClearITPendingBit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	622;"	prototype	signature:(I2C_ITPendingBit_TypeDef I2C_ITPendingBit)
@@ -1391,7 +1378,6 @@ I2C_GetITStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i
 I2C_GetITStatus	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	791;"	function	signature:(I2C_ITPendingBit_TypeDef I2C_ITPendingBit)
 I2C_GetLastEvent	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	609;"	prototype	signature:(void)
 I2C_GetLastEvent	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	628;"	function	signature:(void)
-I2C_IRQHandler	stm8s_it.h	88;"	prototype	signature:(void)
 I2C_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	517;"	prototype	signature:(I2C_IT_TypeDef I2C_IT, FunctionalState NewState)
 I2C_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	381;"	function	signature:(I2C_IT_TypeDef I2C_IT, FunctionalState NewState)
 I2C_ITPENDINGBIT_ACKNOWLEDGEFAILURE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	149;"	enumerator	enum:__anon91
@@ -1417,8 +1403,6 @@ I2C_IT_EVT	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	
 I2C_IT_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	78;"	typedef	typeref:enum:__anon88
 I2C_Init	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	506;"	prototype	signature:(uint32_t OutputClockFrequencyHz, uint16_t OwnAddress, I2C_DutyCycle_TypeDef I2C_DutyCycle, I2C_Ack_TypeDef Ack, I2C_AddMode_TypeDef AddMode, uint8_t InputClockFrequencyMHz )
 I2C_Init	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	96;"	function	signature:(uint32_t OutputClockFrequencyHz, uint16_t OwnAddress, I2C_DutyCycle_TypeDef I2C_DutyCycle, I2C_Ack_TypeDef Ack, I2C_AddMode_TypeDef AddMode, uint8_t InputClockFrequencyMHz )
-I2C_Init_Test	main.c	138;"	prototype	file:	signature:(void)
-I2C_Init_Test	main.c	786;"	function	signature:(void)
 I2C_MAX_FAST_FREQ	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	336;"	macro
 I2C_MAX_INPUT_FREQ	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	338;"	macro
 I2C_MAX_INPUT_FREQ	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	340;"	macro
@@ -1430,8 +1414,8 @@ I2C_OARH_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\st
 I2C_OARL_ADD	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1386;"	macro
 I2C_OARL_ADD0	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1387;"	macro
 I2C_OARL_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1355;"	macro
-I2C_ReadByte	main.c	147;"	prototype	file:	signature:(void)
-I2C_ReadByte	main.c	678;"	function	signature:(void)
+I2C_ReadByte	main.c	148;"	prototype	file:	signature:(void)
+I2C_ReadByte	main.c	686;"	function	signature:(void)
 I2C_ReceiveData	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	518;"	prototype	signature:(void)
 I2C_ReceiveData	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	427;"	function	signature:(void)
 I2C_SR1_ADD10	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1398;"	macro
@@ -1455,22 +1439,22 @@ I2C_SR3_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm
 I2C_SR3_TRA	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1410;"	macro
 I2C_Send7bitAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	519;"	prototype	signature:(uint8_t Address, I2C_Direction_TypeDef Direction)
 I2C_Send7bitAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	440;"	function	signature:(uint8_t Address, I2C_Direction_TypeDef Direction)
-I2C_SendAddress	main.c	145;"	prototype	file:	signature:(uint8_t address)
-I2C_SendAddress	main.c	642;"	function	signature:(uint8_t address)
+I2C_SendAddress	main.c	146;"	prototype	file:	signature:(uint8_t address)
+I2C_SendAddress	main.c	650;"	function	signature:(uint8_t address)
 I2C_SendData	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	520;"	prototype	signature:(uint8_t Data)
 I2C_SendData	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	458;"	function	signature:(uint8_t Data)
 I2C_SoftwareResetCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	513;"	prototype	signature:(FunctionalState NewState)
 I2C_SoftwareResetCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	296;"	function	signature:(FunctionalState NewState)
-I2C_StartCondition	main.c	144;"	prototype	file:	signature:(void)
-I2C_StartCondition	main.c	629;"	function	signature:(void)
-I2C_StopCondition	main.c	684;"	function	signature:(void)
+I2C_StartCondition	main.c	145;"	prototype	file:	signature:(void)
+I2C_StartCondition	main.c	637;"	function	signature:(void)
+I2C_StopCondition	main.c	692;"	function	signature:(void)
 I2C_StretchClockCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	514;"	prototype	signature:(FunctionalState NewState)
 I2C_StretchClockCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\src\stm8s_i2c.c	320;"	function	signature:(FunctionalState NewState)
 I2C_TRISER_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1364;"	macro
 I2C_TRISER_TRISE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1424;"	macro
 I2C_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1346;"	typedef	typeref:struct:I2C_struct
-I2C_WriteByte	main.c	146;"	prototype	file:	signature:(uint8_t data)
-I2C_WriteByte	main.c	664;"	function	signature:(uint8_t data)
+I2C_WriteByte	main.c	147;"	prototype	file:	signature:(uint8_t data)
+I2C_WriteByte	main.c	672;"	function	signature:(uint8_t data)
 I2C_struct	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1328;"	struct
 IAPSR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1521;"	member	struct:FLASH_struct
 ICKR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	510;"	member	struct:CLK_struct
@@ -1943,7 +1927,6 @@ NOPT3	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1592;"	me
 NOPT4	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1594;"	member	struct:OPT_struct
 NOPT5	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1596;"	member	struct:OPT_struct
 NOPT7	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1600;"	member	struct:OPT_struct
-NonHandledInterrupt	stm8s_it.h	41;"	prototype	signature:(void)
 OARH	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1334;"	member	struct:I2C_struct
 OARL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1333;"	member	struct:I2C_struct
 ODR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	267;"	member	struct:GPIO_struct
@@ -2005,7 +1988,7 @@ RC11XX_ADDRESS_CFG_MEM_UID3	main.c	80;"	macro	file:
 RC11XX_ADDRESS_CFG_MEM_WAKE_SOURCE	main.c	88;"	macro	file:
 RC11XX_CFG_DATA_RATE	main.c	103;"	macro	file:
 RC11XX_CFG_DEVICE_TYPE	main.c	104;"	macro	file:
-RC11XX_CFG_PIN	main.c	162;"	macro	file:
+RC11XX_CFG_PIN	main.c	163;"	macro	file:
 RC11XX_CFG_PROTOCOL_MODE	main.c	105;"	macro	file:
 RC11XX_CFG_WAKE_UP_SOURCE	main.c	107;"	macro	file:
 RC11XX_CMD_ALTERNATE_SLEEP_MODE	main.c	57;"	macro	file:
@@ -2031,7 +2014,7 @@ RC11XX_INDICATORS_ON	main.c	31;"	enumerator	enum:__anon3	file:
 RC11XX_PACKET_MODE	main.c	17;"	enumerator	enum:__anon1	file:
 RC11XX_PROMPT	main.c	70;"	macro	file:
 RC11XX_ROUTER	main.c	24;"	enumerator	enum:__anon2	file:
-RC11XX_RST_PIN	main.c	163;"	macro	file:
+RC11XX_RST_PIN	main.c	164;"	macro	file:
 RC11XX_TRANSPARENT_MODE	main.c	18;"	enumerator	enum:__anon1	file:
 RCR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	634;"	member	struct:TIM1_struct
 RECR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2296;"	member	struct:__anon15::__anon16::__anon22
@@ -2085,17 +2068,17 @@ S32_MIN	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	248;"	m
 S8_MAX	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	241;"	macro
 S8_MIN	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	242;"	macro
 SET	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	233;"	enumerator	enum:__anon12
-SHT2x_CalcTemperatureC	main.c	148;"	prototype	file:	signature:(uint16_t u16sT)
-SHT2x_CalcTemperatureC	main.c	736;"	function	signature:(uint16_t u16sT)
-SHT2x_GetSerialNumber	main.c	689;"	function	signature:(uint8_t u8SerialNumber[])
-SHT2x_MeasureTempHoldMaster	main.c	149;"	prototype	file:	signature:(void)
-SHT2x_MeasureTempHoldMaster	main.c	747;"	function	signature:(void)
-SHT2x_SoftReset	main.c	140;"	prototype	file:	signature:(void)
-SHT2x_SoftReset	main.c	844;"	function	signature:(void)
+SHT2x_CalcTemperatureC	main.c	149;"	prototype	file:	signature:(uint16_t u16sT)
+SHT2x_CalcTemperatureC	main.c	744;"	function	signature:(uint16_t u16sT)
+SHT2x_GetSerialNumber	main.c	697;"	function	signature:(uint8_t u8SerialNumber[])
+SHT2x_MeasureTempHoldMaster	main.c	150;"	prototype	file:	signature:(void)
+SHT2x_MeasureTempHoldMaster	main.c	755;"	function	signature:(void)
+SHT2x_SoftReset	main.c	141;"	prototype	file:	signature:(void)
+SHT2x_SoftReset	main.c	793;"	function	signature:(void)
 SMCR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1125;"	member	struct:TIM5_struct
 SMCR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1264;"	member	struct:TIM6_struct
 SMCR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	616;"	member	struct:TIM1_struct
-SOFT_RESET	main.c	414;"	enumerator	enum:__anon9	file:
+SOFT_RESET	main.c	422;"	enumerator	enum:__anon9	file:
 SPI	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2655;"	macro
 SPI_BAUDRATEPRESCALER_128	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h	94;"	enumerator	enum:__anon102
 SPI_BAUDRATEPRESCALER_16	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h	91;"	enumerator	enum:__anon102
@@ -2167,7 +2150,6 @@ SPI_ICR_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm
 SPI_ICR_RXEI	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1746;"	macro
 SPI_ICR_TXEI	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1745;"	macro
 SPI_ICR_WKIE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1748;"	macro
-SPI_IRQHandler	stm8s_it.h	64;"	prototype	signature:(void)
 SPI_ITConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h	310;"	prototype	signature:(SPI_IT_TypeDef SPI_IT, FunctionalState NewState)
 SPI_IT_CRCERR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h	157;"	enumerator	enum:__anon108
 SPI_IT_ERR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h	160;"	enumerator	enum:__anon108
@@ -2259,7 +2241,6 @@ TIM1_BREAK_ENABLE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM1_BaseAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2580;"	macro
 TIM1_BreakPolarity_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	175;"	typedef	typeref:enum:__anon118
 TIM1_BreakState_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	166;"	typedef	typeref:enum:__anon117
-TIM1_CAP_COM_IRQHandler	stm8s_it.h	65;"	prototype	signature:(void)
 TIM1_CCER1_CC1E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	764;"	macro
 TIM1_CCER1_CC1NE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	762;"	macro
 TIM1_CCER1_CC1NP	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	761;"	macro
@@ -2581,7 +2562,6 @@ TIM1_TimeBaseInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM1_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	647;"	typedef	typeref:struct:TIM1_struct
 TIM1_UPDATESOURCE_GLOBAL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	400;"	enumerator	enum:__anon135
 TIM1_UPDATESOURCE_REGULAR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	401;"	enumerator	enum:__anon135
-TIM1_UPD_OVF_TRG_BRK_IRQHandler	stm8s_it.h	66;"	prototype	signature:(void)
 TIM1_UpdateDisableConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	553;"	prototype	signature:(FunctionalState NewState)
 TIM1_UpdateRequestConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	554;"	prototype	signature:(TIM1_UpdateSource_TypeDef TIM1_UpdateSource)
 TIM1_UpdateSource_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim1.h	402;"	typedef	typeref:enum:__anon135
@@ -2593,7 +2573,6 @@ TIM2_ARRL_ARR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	9
 TIM2_ARRL_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	872;"	macro
 TIM2_ARRPreloadConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim2.h	302;"	prototype	signature:(FunctionalState NewState)
 TIM2_BaseAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2581;"	macro
-TIM2_CAP_COM_IRQHandler	stm8s_it.h	73;"	prototype	signature:(void)
 TIM2_CCER1_CC1E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	922;"	macro
 TIM2_CCER1_CC1P	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	921;"	macro
 TIM2_CCER1_CC2E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	920;"	macro
@@ -2771,7 +2750,6 @@ TIM2_TimeBaseInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM2_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	852;"	typedef	typeref:struct:TIM2_struct
 TIM2_UPDATESOURCE_GLOBAL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim2.h	244;"	enumerator	enum:__anon153
 TIM2_UPDATESOURCE_REGULAR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim2.h	245;"	enumerator	enum:__anon153
-TIM2_UPD_OVF_BRK_IRQHandler	stm8s_it.h	72;"	prototype	signature:(void)
 TIM2_UpdateDisableConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim2.h	295;"	prototype	signature:(FunctionalState NewState)
 TIM2_UpdateRequestConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim2.h	296;"	prototype	signature:(TIM2_UpdateSource_TypeDef TIM2_UpdateSource)
 TIM2_UpdateSource_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim2.h	246;"	typedef	typeref:enum:__anon153
@@ -2783,7 +2761,6 @@ TIM3_ARRL_ARR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1
 TIM3_ARRL_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	990;"	macro
 TIM3_ARRPreloadConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim3.h	292;"	prototype	signature:(FunctionalState NewState)
 TIM3_BaseAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2582;"	macro
-TIM3_CAP_COM_IRQHandler	stm8s_it.h	79;"	prototype	signature:(void)
 TIM3_CCER1_CC1E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1034;"	macro
 TIM3_CCER1_CC1P	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1033;"	macro
 TIM3_CCER1_CC2E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1032;"	macro
@@ -2937,7 +2914,6 @@ TIM3_TimeBaseInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM3_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	972;"	typedef	typeref:struct:TIM3_struct
 TIM3_UPDATESOURCE_GLOBAL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim3.h	240;"	enumerator	enum:__anon168
 TIM3_UPDATESOURCE_REGULAR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim3.h	241;"	enumerator	enum:__anon168
-TIM3_UPD_OVF_BRK_IRQHandler	stm8s_it.h	78;"	prototype	signature:(void)
 TIM3_UpdateDisableConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim3.h	286;"	prototype	signature:(FunctionalState NewState)
 TIM3_UpdateRequestConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim3.h	287;"	prototype	signature:(TIM3_UpdateSource_TypeDef TIM3_UpdateSource)
 TIM3_UpdateSource_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim3.h	242;"	typedef	typeref:enum:__anon168
@@ -3002,7 +2978,6 @@ TIM4_TimeBaseInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM4_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1072;"	typedef	typeref:struct:TIM4_struct
 TIM4_UPDATESOURCE_GLOBAL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim4.h	92;"	enumerator	enum:__anon173
 TIM4_UPDATESOURCE_REGULAR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim4.h	93;"	enumerator	enum:__anon173
-TIM4_UPD_OVF_IRQHandler	stm8s_it.h	109;"	prototype	signature:(void)
 TIM4_UpdateDisableConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim4.h	142;"	prototype	signature:(FunctionalState NewState)
 TIM4_UpdateRequestConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim4.h	143;"	prototype	signature:(TIM4_UpdateSource_TypeDef TIM4_UpdateSource)
 TIM4_UpdateSource_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim4.h	94;"	typedef	typeref:enum:__anon173
@@ -3014,7 +2989,6 @@ TIM5_ARRL_ARR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1
 TIM5_ARRL_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1168;"	macro
 TIM5_ARRPreloadConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim5.h	434;"	prototype	signature:(FunctionalState NewState)
 TIM5_BaseAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2584;"	macro
-TIM5_CAP_COM_IRQHandler	stm8s_it.h	70;"	prototype	signature:(void)
 TIM5_CCER1_CC1E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1228;"	macro
 TIM5_CCER1_CC1P	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1227;"	macro
 TIM5_CCER1_CC2E	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1226;"	macro
@@ -3237,7 +3211,6 @@ TIM5_TimeBaseInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM5_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1146;"	typedef	typeref:struct:TIM5_struct
 TIM5_UPDATESOURCE_GLOBAL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim5.h	247;"	enumerator	enum:__anon190
 TIM5_UPDATESOURCE_REGULAR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim5.h	248;"	enumerator	enum:__anon190
-TIM5_UPD_OVF_BRK_TRG_IRQHandler	stm8s_it.h	69;"	prototype	signature:(void)
 TIM5_UpdateDisableConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim5.h	426;"	prototype	signature:(FunctionalState NewState)
 TIM5_UpdateRequestConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim5.h	427;"	prototype	signature:(TIM5_UpdateSource_TypeDef TIM5_UpdateSource)
 TIM5_UpdateSource_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim5.h	249;"	typedef	typeref:enum:__anon190
@@ -3332,7 +3305,6 @@ TIM6_TimeBaseInit	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 TIM6_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1272;"	typedef	typeref:struct:TIM6_struct
 TIM6_UPDATESOURCE_GLOBAL	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim6.h	85;"	enumerator	enum:__anon201
 TIM6_UPDATESOURCE_REGULAR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim6.h	86;"	enumerator	enum:__anon201
-TIM6_UPD_OVF_TRG_IRQHandler	stm8s_it.h	107;"	prototype	signature:(void)
 TIM6_UpdateDisableConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim6.h	255;"	prototype	signature:(FunctionalState NewState)
 TIM6_UpdateRequestConfig	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim6.h	256;"	prototype	signature:(TIM6_UpdateSource_TypeDef TIM6_UpdateSource)
 TIM6_UpdateSource_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_tim6.h	87;"	typedef	typeref:enum:__anon201
@@ -3340,16 +3312,14 @@ TIM6_struct	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	126
 TINY	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	124;"	macro
 TINY	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	130;"	macro
 TINY	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	144;"	macro
-TLI_IRQHandler	stm8s_it.h	46;"	prototype	signature:(void)
 TPR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2179;"	member	struct:__anon15
-TRAP_IRQHandler	stm8s_it.h	45;"	prototype	signature:(void)
-TRIG_T_MEASUREMENT_HM	main.c	410;"	enumerator	enum:__anon9	file:
-TRIG_T_MEASUREMENT_POLL	main.c	411;"	enumerator	enum:__anon9	file:
+TRIG_T_MEASUREMENT_HM	main.c	418;"	enumerator	enum:__anon9	file:
+TRIG_T_MEASUREMENT_POLL	main.c	419;"	enumerator	enum:__anon9	file:
 TRISER	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1343;"	member	struct:I2C_struct
 TRUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	231;"	enumerator	enum:__anon11
 TSR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2178;"	member	struct:__anon15
 TXCRCR	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1705;"	member	struct:SPI_struct
-T_COUNT	main.c	205;"	macro	file:
+T_COUNT	main.c	199;"	macro	file:
 TxMailbox	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2205;"	member	union:__anon15::__anon16	typeref:struct:__anon15::__anon16::__anon17
 U16_MAX	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	243;"	macro
 U32_MAX	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	246;"	macro
@@ -3449,7 +3419,6 @@ UART1_PARITY_NO	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_u
 UART1_PARITY_ODD	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	83;"	enumerator	enum:__anon212
 UART1_PSCR_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1796;"	macro
 UART1_Parity_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	84;"	typedef	typeref:enum:__anon212
-UART1_RX_IRQHandler	stm8s_it.h	85;"	prototype	signature:(void)
 UART1_ReceiveData8	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	360;"	prototype	signature:(void)
 UART1_ReceiveData9	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	361;"	prototype	signature:(void)
 UART1_ReceiverWakeUpCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	359;"	prototype	signature:(FunctionalState NewState)
@@ -3484,7 +3453,6 @@ UART1_SmartCardCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8
 UART1_SmartCardNACKCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	357;"	prototype	signature:(FunctionalState NewState)
 UART1_StopBits_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	76;"	typedef	typeref:enum:__anon211
 UART1_SyncMode_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	97;"	typedef	typeref:enum:__anon213
-UART1_TX_IRQHandler	stm8s_it.h	84;"	prototype	signature:(void)
 UART1_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1781;"	typedef	typeref:struct:UART1_struct
 UART1_WAKEUP_ADDRESSMARK	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	58;"	enumerator	enum:__anon209
 UART1_WAKEUP_IDLELINE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart1.h	57;"	enumerator	enum:__anon209
@@ -3608,7 +3576,6 @@ UART2_PARITY_NO	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_u
 UART2_PARITY_ODD	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	86;"	enumerator	enum:__anon222
 UART2_PSCR_RESET_VALUE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1896;"	macro
 UART2_Parity_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	87;"	typedef	typeref:enum:__anon222
-UART2_RX_IRQHandler	stm8s_it.h	91;"	prototype	signature:(void)
 UART2_ReceiveData8	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	422;"	prototype	signature:(void)
 UART2_ReceiveData9	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	423;"	prototype	signature:(void)
 UART2_ReceiverWakeUpCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	421;"	prototype	signature:(FunctionalState NewState)
@@ -3643,7 +3610,6 @@ UART2_SmartCardCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8
 UART2_SmartCardNACKCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	419;"	prototype	signature:(FunctionalState NewState)
 UART2_StopBits_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	78;"	typedef	typeref:enum:__anon221
 UART2_SyncMode_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	118;"	typedef	typeref:enum:__anon226
-UART2_TX_IRQHandler	stm8s_it.h	92;"	prototype	signature:(void)
 UART2_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1880;"	typedef	typeref:struct:UART2_struct
 UART2_WAKEUP_ADDRESSMARK	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	59;"	enumerator	enum:__anon219
 UART2_WAKEUP_IDLELINE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart2.h	58;"	enumerator	enum:__anon219
@@ -3750,7 +3716,6 @@ UART3_PARITY_EVEN	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s
 UART3_PARITY_NO	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	70;"	enumerator	enum:__anon234
 UART3_PARITY_ODD	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	72;"	enumerator	enum:__anon234
 UART3_Parity_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	73;"	typedef	typeref:enum:__anon234
-UART3_RX_IRQHandler	stm8s_it.h	96;"	prototype	signature:(void)
 UART3_ReceiveData8	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	368;"	prototype	signature:(void)
 UART3_ReceiveData9	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	369;"	prototype	signature:(void)
 UART3_ReceiverWakeUpCmd	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	366;"	prototype	signature:(FunctionalState NewState)
@@ -3770,7 +3735,6 @@ UART3_SendData8	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_u
 UART3_SendData9	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	371;"	prototype	signature:(uint16_t Data)
 UART3_SetAddress	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	373;"	prototype	signature:(uint8_t UART3_Address)
 UART3_StopBits_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	65;"	typedef	typeref:enum:__anon233
-UART3_TX_IRQHandler	stm8s_it.h	97;"	prototype	signature:(void)
 UART3_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	1985;"	typedef	typeref:struct:UART3_struct
 UART3_WAKEUP_ADDRESSMARK	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	49;"	enumerator	enum:__anon231
 UART3_WAKEUP_IDLELINE	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	48;"	enumerator	enum:__anon231
@@ -3939,10 +3903,10 @@ UART4_WakeUp_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\st
 UART4_WordLength_TypeDef	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart4.h	125;"	typedef	typeref:enum:__anon251
 UART4_struct	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2064;"	struct
 UNUSED	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2805;"	macro
-USART_RX	main.c	156;"	function	signature:(void)
-USART_TX	main.c	151;"	function	signature:(unsigned char val)
-USER_REG_R	main.c	413;"	enumerator	enum:__anon9	file:
-USER_REG_W	main.c	412;"	enumerator	enum:__anon9	file:
+USART_RX	main.c	157;"	function	signature:(void)
+USART_TX	main.c	152;"	function	signature:(unsigned char val)
+USER_REG_R	main.c	421;"	enumerator	enum:__anon9	file:
+USER_REG_W	main.c	420;"	enumerator	enum:__anon9	file:
 USE_FULL_ASSERT	stm8s_conf.h	93;"	macro
 USE_STDPERIPH_DRIVER	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	96;"	macro
 VECTOR_ID	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2759;"	macro
@@ -3984,7 +3948,6 @@ __STM8S_GPIO_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_gp
 __STM8S_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	30;"	macro
 __STM8S_I2C_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_i2c.h	30;"	macro
 __STM8S_ITC_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_itc.h	30;"	macro
-__STM8S_IT_H	stm8s_it.h	30;"	macro
 __STM8S_IWDG_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_iwdg.h	30;"	macro
 __STM8S_RST_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_rst.h	29;"	macro
 __STM8S_SPI_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_spi.h	30;"	macro
@@ -4004,17 +3967,16 @@ __STM8S_UART2_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_u
 __STM8S_UART3_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart3.h	30;"	macro
 __STM8S_UART4_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_uart4.h	30;"	macro
 __STM8S_WWDG_H	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s_wwdg.h	30;"	macro
-_delay_cycl	main.c	202;"	function	file:	signature:( unsigned short __ticks )
-_stext	stm8s_it.h	40;"	prototype	signature:(void)
+_delay_cycl	main.c	196;"	function	file:	signature:( unsigned short __ticks )
 _vectab	stm8_interrupt_vector.c	14;"	variable
-assert_failed	main.c	174;"	function	signature:(uint8_t* file, uint32_t line)
+assert_failed	main.c	175;"	function	signature:(uint8_t* file, uint32_t line)
 assert_failed	stm8s_conf.h	108;"	prototype	signature:(uint8_t* file, uint32_t line)
 assert_param	stm8s_conf.h	106;"	macro
 assert_param	stm8s_conf.h	110;"	macro
 bool	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	231;"	typedef	typeref:enum:__anon11
-counter_tx	main.c	402;"	variable
+counter_tx	main.c	410;"	variable
 data_rate	main.c	114;"	member	struct:__anon7	file:
-delay_ms	main.c	194;"	function	signature:(uint32_t ms)
+delay_ms	main.c	206;"	function	signature:(uint32_t ms)
 device_type	main.c	119;"	member	struct:__anon7	file:
 disableInterrupts	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2717;"	macro
 disableInterrupts	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2726;"	macro
@@ -4024,8 +3986,8 @@ enableInterrupts	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.
 enableInterrupts	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2735;"	macro
 end_device_wait_cmd	main.c	123;"	member	struct:__anon7	file:
 end_device_wakeup_enable	main.c	124;"	member	struct:__anon7	file:
-etSHT2xCommand	main.c	415;"	typedef	typeref:enum:__anon9	file:
-etSTS21Address	main.c	407;"	typedef	typeref:enum:__anon8	file:
+etSHT2xCommand	main.c	423;"	typedef	typeref:enum:__anon9	file:
+etSTS21Address	main.c	415;"	typedef	typeref:enum:__anon8	file:
 halt	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2723;"	macro
 halt	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2732;"	macro
 halt	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2742;"	macro
@@ -4043,7 +4005,8 @@ interrupt_handler	stm8_interrupt_vector.c	11;"	member	struct:interrupt_vector	fi
 interrupt_handler_t	stm8_interrupt_vector.c	7;"	typedef	file:
 interrupt_instruction	stm8_interrupt_vector.c	10;"	member	struct:interrupt_vector	file:
 interrupt_vector	stm8_interrupt_vector.c	9;"	struct	file:
-main	main.c	881;"	function	signature:(void)
+main	main.c	830;"	function	signature:(void)
+measured_temperature	main.c	133;"	variable
 nop	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2720;"	macro
 nop	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2729;"	macro
 nop	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2739;"	macro
@@ -4054,18 +4017,18 @@ rc11xx_ima_on_connect_t	main.c	38;"	typedef	typeref:enum:__anon4	file:
 rc11xx_indicators_t	main.c	32;"	typedef	typeref:enum:__anon3	file:
 rc11xx_protocol_mode_t	main.c	19;"	typedef	typeref:enum:__anon1	file:
 rc_config_mem	main.c	130;"	variable
-rc_configure_ed	main.c	136;"	prototype	file:	signature:(void)
-rc_configure_ed	main.c	332;"	function
-rc_enter_config	main.c	134;"	prototype	file:	signature:(void)
-rc_enter_config	main.c	239;"	function	signature:(void)
-rc_exit_config	main.c	135;"	prototype	file:	signature:(void)
-rc_exit_config	main.c	263;"	function	signature:(void)
-rc_hw_reset	main.c	137;"	prototype	file:	signature:(void)
-rc_hw_reset	main.c	269;"	function	signature:(void)
-rc_read_config_address	main.c	321;"	function	signature:(uint8_t cfg_address)
-rc_wait_for_prompt	main.c	223;"	function	signature:(void)
-rc_write_config_array	main.c	295;"	function	signature:(uint8_t *config_array, uint8_t array_len)
-rc_write_config_value	main.c	276;"	function	signature:(uint8_t config_address, uint8_t config_value)
+rc_configure_ed	main.c	137;"	prototype	file:	signature:(void)
+rc_configure_ed	main.c	340;"	function
+rc_enter_config	main.c	135;"	prototype	file:	signature:(void)
+rc_enter_config	main.c	247;"	function	signature:(void)
+rc_exit_config	main.c	136;"	prototype	file:	signature:(void)
+rc_exit_config	main.c	271;"	function	signature:(void)
+rc_hw_reset	main.c	138;"	prototype	file:	signature:(void)
+rc_hw_reset	main.c	277;"	function	signature:(void)
+rc_read_config_address	main.c	329;"	function	signature:(uint8_t cfg_address)
+rc_wait_for_prompt	main.c	231;"	function	signature:(void)
+rc_write_config_array	main.c	303;"	function	signature:(uint8_t *config_array, uint8_t array_len)
+rc_write_config_value	main.c	284;"	function	signature:(uint8_t config_address, uint8_t config_value)
 receive_neighbour_msg	main.c	126;"	member	struct:__anon7	file:
 rf_channel	main.c	112;"	member	struct:__anon7	file:
 rf_power	main.c	113;"	member	struct:__anon7	file:
@@ -4077,10 +4040,10 @@ s16	main.c	53;"	member	union:__anon5	typeref:struct:__anon5::__anon6	file:
 s16	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	223;"	typedef
 s32	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	222;"	typedef
 s8	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	224;"	typedef
-sEETimeout	main.c	425;"	variable
-sEE_FLAG_TIMEOUT	main.c	423;"	macro	file:
-sEE_LONG_TIMEOUT	main.c	424;"	macro	file:
-sEE_TIMEOUT_UserCallback	main.c	433;"	function	signature:(void)
+sEETimeout	main.c	433;"	variable
+sEE_FLAG_TIMEOUT	main.c	431;"	macro	file:
+sEE_LONG_TIMEOUT	main.c	432;"	macro	file:
+sEE_TIMEOUT_UserCallback	main.c	441;"	function	signature:(void)
 sid	main.c	121;"	member	struct:__anon7	file:
 sim	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2719;"	macro
 sim	stm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc\stm8s.h	2728;"	macro

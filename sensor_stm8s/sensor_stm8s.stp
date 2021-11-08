@@ -82,10 +82,10 @@ String.100.0=STM8S003F3U
 
 [Root.Config.0.Settings.3]
 String.2.0=Compiling $(InputFile)...
-String.3.0=cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc  -i"c:\program files (x86)\cosmic\fse_compilers\cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc \hstm8"  -customDbg -customDebCompat -customOpt-no -customLst -l +mods0 -customC-pp $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile) 
+String.3.0=cxstm8 +mods0 -customDebCompat -customOpt-no -customC-pp -customLst -l -dFCLK=16000000 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc -i"c:\program files (x86)\cosmic\fse_compilers\cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc \hstm8" $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
 String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
 String.5.0=$(IntermPath)$(InputName).ls
-String.6.0=2021,10,3,11,47,5
+String.6.0=2021,11,8,3,52,22
 
 [Root.Config.0.Settings.4]
 String.2.0=Assembling $(InputFile)...
@@ -106,6 +106,7 @@ String.3.1=cvdwarf $(OutputPath)$(TargetSName).sm8
 String.4.0=$(OutputPath)$(TargetFName)
 String.5.0=$(OutputPath)$(ProjectSFile).elf $(OutputPath)$(TargetSName).map
 String.6.0=2021,10,6,4,45,12
+String.100.0=
 String.101.0=crtsi.st7
 String.102.0=+seg .const -b 0x8080 -m 0x1f80 -n .const -it
 String.102.1=+seg .text -a .const -n .text
@@ -241,10 +242,10 @@ Int.1=0
 
 [Root.Source Files.Config.0.Settings.1]
 String.2.0=Compiling $(InputFile)...
-String.3.0=cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc  -i"c:\program files (x86)\cosmic\fse_compilers\cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc \hstm8"  -customDbg -customDebCompat -customOpt-no -customLst -l +mods0 -customC-pp $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile) 
+String.3.0=cxstm8 +mods0 -customDebCompat -customOpt-no -customC-pp -customLst -l -dFCLK=16000000 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc -i"c:\program files (x86)\cosmic\fse_compilers\cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc \hstm8" $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
 String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
 String.5.0=$(IntermPath)$(InputName).ls
-String.6.0=2021,10,3,11,47,5
+String.6.0=2021,11,8,3,52,22
 
 [Root.Source Files.Config.0.Settings.2]
 String.2.0=Assembling $(InputFile)...
@@ -343,10 +344,10 @@ Int.1=0
 
 [Root.Include Files.Config.0.Settings.1]
 String.2.0=Compiling $(InputFile)...
-String.3.0=cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc  -i"c:\program files (x86)\cosmic\fse_compilers\cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc \hstm8"  -customDbg -customDebCompat -customOpt-no -customLst -l +mods0 -customC-pp $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile) 
+String.3.0=cxstm8 +mods0 -customDebCompat -customOpt-no -customC-pp -customLst -l -dFCLK=16000000 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc -i"c:\program files (x86)\cosmic\fse_compilers\cxstm8 -istm8s_stdperiph_lib\libraries\stm8s_stdperiph_driver\inc \hstm8" $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
 String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
 String.5.0=$(IntermPath)$(InputName).ls
-String.6.0=2021,10,3,11,47,5
+String.6.0=2021,11,8,3,52,22
 
 [Root.Include Files.Config.0.Settings.2]
 String.2.0=Assembling $(InputFile)...

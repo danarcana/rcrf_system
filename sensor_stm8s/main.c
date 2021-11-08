@@ -130,6 +130,7 @@ typedef struct
 rc11xx_config_mem_t  rc_config_mem = {0};
 uint8_t SerialNumber_SHT2x[8];  //64bit serial number
 int16Union sts21_temperature = {0};
+float measured_temperature = 0.0f;
 
 bool rc_enter_config(void);
 void rc_exit_config(void);
@@ -882,11 +883,14 @@ void main(void)
 	rc_configure_ed();
 	
 	while (1) {
-		delay_ms(4500);
+		delay_ms(7500);
 //		_delay_cycl((unsigned short) (T_COUNT(10000));
 		SHT2x_MeasureTempHoldMaster();
-		SHT2x_CalcTemperatureC(sts21_temperature.u16);
+		measured_temperature = SHT2x_CalcTemperatureC(sts21_temperature.u16);
+		
 		USART_TX(counter_tx);
+		USART_TX(sts21_temperature.s16.u8H);
+		USART_TX(sts21_temperature.s16.u8L);
 		USART_TX(counter_tx);
 		USART_TX(counter_tx);
 		counter_tx++;

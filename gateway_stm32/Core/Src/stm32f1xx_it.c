@@ -226,55 +226,6 @@ void RCC_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel4 global interrupt.
-  */
-void DMA1_Channel4_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
-	if (LL_DMA_IsActiveFlag_TC4(DMA1))
-	{
-		LL_DMA_ClearFlag_TC4(DMA1);
-
-		/* wait for usart */
-		while (!LL_USART_IsActiveFlag_TC(USART1));
-	}
-  /* USER CODE END DMA1_Channel4_IRQn 0 */
-
-  /* USER CODE BEGIN DMA1_Channel4_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel4_IRQn 1 */
-}
-
-/**
-  * @brief This function handles DMA1 channel5 global interrupt.
-  */
-void DMA1_Channel5_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
-
-    /* Check half-transfer complete interrupt */
-    if (LL_DMA_IsEnabledIT_HT(DMA1, LL_DMA_CHANNEL_5) && LL_DMA_IsActiveFlag_HT5(DMA1)) {
-        LL_DMA_ClearFlag_HT5(DMA1);             /* Clear half-transfer complete flag */
-//        usart_rx_check();                       /* Check for data to process */
-        __NOP();
-    }
-
-    /* Check transfer-complete interrupt */
-    if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_5) && LL_DMA_IsActiveFlag_TC5(DMA1)) {
-        LL_DMA_ClearFlag_TC5(DMA1);             /* Clear transfer complete flag */
-//        usart_rx_check();                       /* Check for data to process */
-        __NOP();
-    }
-
-
-  /* USER CODE END DMA1_Channel5_IRQn 0 */
-
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel5_IRQn 1 */
-}
-
-/**
   * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
   */
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -303,6 +254,7 @@ void USART1_IRQHandler(void)
 
         ringbuffer_Write(&nb_bc_rx_ring_buffer, nb_bc_start_of_msg, nb_bc_recv_len);
         nb_bc_start_of_msg = 0;
+        usart1_idle_flag = 1;
 
 //        LL_TIM_DisableCounter(TIMER_M95_EOF);
 //        LL_TIM_SetCounter(TIMER_M95_EOF, 0);
@@ -335,6 +287,9 @@ void USART1_IRQHandler(void)
         *nb_bc_recv_buf_p++ = c;
         nb_bc_recv_len++;
       }
+//      		  usart_rx_dma_buffer[usart1_rx_buffer_idx]= LL_USART_ReceiveData8(USART1);
+		  usart_rx_dma_buffer[usart1_rx_buffer_idx]= c;
+      		  usart1_rx_buffer_idx ++;
     }
 
 //	  if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))

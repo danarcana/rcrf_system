@@ -167,20 +167,20 @@ static uint32_t nb_reset_to  = 0;
 
 __IO uint8_t usart1_idle_flag = 0;
 
-void nb_bc_send_cmd(const char * c, uint32_t l, uint32_t to)
-{
-  to += systick_counter;
-  nb_bc_reply_timeout = to;
-
-  /* as per multibuffer operations */
-  LL_USART_ClearFlag_TC(NB_BC_UART);
-
-  /* update # of bytes to transfer */
-  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4);
-  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_4, (uint32_t) (c));
-  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4, l);
-  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4);
-}
+//void nb_bc_send_cmd(const char * c, uint32_t l, uint32_t to)
+//{
+//  to += systick_counter;
+//  nb_bc_reply_timeout = to;
+//
+//  /* as per multibuffer operations */
+//  LL_USART_ClearFlag_TC(NB_BC_UART);
+//
+//  /* update # of bytes to transfer */
+//  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4);
+//  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_4, (uint32_t) (c));
+//  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4, l);
+//  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4);
+//}
 
 void USART_TX(unsigned char val) {
 
@@ -198,33 +198,34 @@ unsigned char USART_RX(void) {
 }
 
 
-//void nb_bc_send_cmd(const char * c, uint32_t l, uint32_t to)
-//{
-//  uint32_t i =0;
-//  /* as per multibuffer operations */
-//  LL_USART_ClearFlag_TC(NB_BC_UART);
-//
-//  for (i=0;i<l;i++)
-//  {
-//	  USART_TX(*c);
-//	  LL_USART_ClearFlag_TC(NB_BC_UART);
-//	  c++;
-//  }
-//
-//}
+void nb_bc_send_cmd(const char * c, uint32_t l, uint32_t to)
+{
+  uint32_t i =0;
+    to += systick_counter;
+    nb_bc_reply_timeout = to;
+  /* as per multibuffer operations */
+  LL_USART_ClearFlag_TC(NB_BC_UART);
+
+  for (i=1;i<l;i++)
+  {
+	  USART_TX(*c);
+	  LL_USART_ClearFlag_TC(NB_BC_UART);
+	  c++;
+  }
+
+}
 
 ring_buffer_status_t nb_bc_wait_replay(uint32_t *p, uint32_t *l)
 {
-  ring_buffer_status_t ret = RING_BUFFER_OK;
+  ring_buffer_status_t ret = RING_BUFFER_EMPTY;
   uint32_t to = nb_bc_reply_timeout;
 
   *p = *l = 0;
 
   while(systick_counter < to)
   {
-//    ret = ringbuffer_Read(&nb_bcrx_ring_buffer, p, l);
-//    if( ret == RING_BUFFER_OK)
-	if (usart1_idle_flag)
+    ret = ringbuffer_Read(&nb_bc_rx_ring_buffer, p, l);
+    if( ret == RING_BUFFER_OK)
     {
       break;
     }
@@ -396,9 +397,11 @@ void nb_bc_reboot(void)
 
 
   /* delay at least 5 secs for M95 to accept AT commands */
+  usart1_idle_flag = 0;
   LL_mDelay(6000);
+  LL_mDelay(2000);
 
-  usart1_idle_flag = 0;	//drop bootup messages
+//  usart1_idle_flag = 0;	//drop bootup messages
 
 //  LL_USART_ReceiveData8(NB_BC_UART);
 
@@ -407,10 +410,18 @@ void nb_bc_reboot(void)
 
   /* autobaud, try 15 times  */
   i = 15;
+  usart1_idle_flag = 0;
   while(--i)
   {
 	nb_bc_send_cmd(__AT, __ATLEN, 300);
+	LL_mDelay(20);
+	if (usart1_idle_flag)
+	{
+//		break;
+		__NOP();
+	}
 	if( nb_bc_wait_replay(&ptr, &len) == RING_BUFFER_OK )
+//	if(ringbuffer_Read(&nb_bc_rx_ring_buffer, &ptr, &len)==RING_BUFFER_OK)
 	{
 	  if( nb_bc_find_text(AT_IDX_OK, (uint8_t *)ptr, len) )
 	  {

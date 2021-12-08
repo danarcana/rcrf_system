@@ -30,7 +30,6 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_DMA_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
@@ -171,6 +170,12 @@ usart_start_tx_dma_transfer(void) {
 
 void dma_configure_nb(void)
 {
+	/* TX */
+	LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4,
+	                       (uint32_t)nb_bc_send_buf,
+	                       LL_USART_DMA_GetRegAddr(NB_BC_UART),
+	                       LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+
   /* TX */
 //  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_7,
 //                         (uint32_t)m95_send_buf,
@@ -180,20 +185,27 @@ void dma_configure_nb(void)
   /* tx channel ***************************/
 //  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_7);
 
-	LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)usart_rx_dma_buffer);
-	LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ARRAY_LEN(usart_rx_dma_buffer));
+//	LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)usart_rx_dma_buffer);
+//	LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ARRAY_LEN(usart_rx_dma_buffer));
 
     /* Enable HT & TC interrupts */
 //    LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_5);
-    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_5);
+//    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_5);
+	    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_4);
 
     /* DMA1_Channel5_IRQn interrupt configuration */
-    NVIC_SetPriority(DMA1_Channel5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
-    NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+//    NVIC_SetPriority(DMA1_Channel5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+//    NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+
+	  NVIC_SetPriority(DMA1_Channel4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+	  NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+
 
 //    LL_USART_EnableDMAReq_RX(USART1);
-    LL_USART_EnableIT_IDLE(USART1);
-    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_5);
+	  LL_USART_EnableDMAReq_TX(USART1);
+
+
+	  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4);
 
     /* USART interrupt */
 //    NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
@@ -232,7 +244,6 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_DMA_Init();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
@@ -240,7 +251,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 //  TIM14->CNT = 0;
 //  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
-  dma_configure_nb();
+//  dma_configure_nb();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -271,7 +282,8 @@ int main(void)
   usart3_is_msg = 0;
   usart3_buff_idx =0;
   LL_SYSTICK_EnableIT();
-//  LL_USART_EnableIT_RXNE(USART1);
+  LL_USART_EnableIT_RXNE(USART1);
+  LL_USART_EnableIT_IDLE(USART1);
 //  LL_USART_EnableIT_TC(USART1);
   nb_bc_reboot();
 
@@ -374,47 +386,6 @@ static void MX_USART1_UART_Init(void)
   GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /* USART1 DMA Init */
-
-  /* USART1_RX Init */
-  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
-
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PRIORITY_LOW);
-
-  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MODE_CIRCULAR);
-
-  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PERIPH_NOINCREMENT);
-
-  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MEMORY_INCREMENT);
-
-  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PDATAALIGN_BYTE);
-
-  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MDATAALIGN_BYTE);
-
-//  LL_DMA_SetM2MSrcAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)&USART1->DR);
-
-  LL_DMA_SetPeriphAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)&USART1->DR);
-
-  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)usart_rx_dma_buffer);
-
-
-  LL_USART_EnableDMAReq_RX(USART1);
-
-  /* USART1_TX Init */
-  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_4, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
-
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_4, LL_DMA_PRIORITY_LOW);
-
-  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MODE_CIRCULAR);
-
-  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_4, LL_DMA_PERIPH_NOINCREMENT);
-
-  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MEMORY_INCREMENT);
-
-  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_4, LL_DMA_PDATAALIGN_BYTE);
-
-  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MDATAALIGN_BYTE);
 
   /* USART1 interrupt Init */
   NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
@@ -572,26 +543,6 @@ static void MX_USART3_UART_Init(void)
 //  LL_USART_EnableDMAReq_RX(USART3);
 
   /* USER CODE END USART3_Init 2 */
-
-}
-
-/**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* Init with LL driver */
-  /* DMA controller clock enable */
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
-
-  /* DMA interrupt init */
-  /* DMA1_Channel4_IRQn interrupt configuration */
-  NVIC_SetPriority(DMA1_Channel4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-  /* DMA1_Channel5_IRQn interrupt configuration */
-  NVIC_SetPriority(DMA1_Channel5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 

@@ -6,6 +6,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "rc11xx.h"
+#include "nb_bc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -29,9 +30,11 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_DMA_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 #define USART3_RX_BUFFER_SIZE      250
 
@@ -39,6 +42,19 @@ extern __IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
 extern __IO uint8_t   usart3_rx_len;
 extern __IO uint8_t   usart3_is_msg;
 extern __IO uint8_t   usart3_buff_idx;
+
+/**
+ * \brief           Calculate length of statically allocated array
+ */
+#define ARRAY_LEN(x)            (sizeof(x) / sizeof((x)[0]))
+
+/**
+ * \brief           USART RX buffer for DMA to transfer every received byte
+ * \note            Contains raw data that are about to be processed by different events
+ */
+__IO uint8_t usart_rx_dma_buffer[250];
+__IO uint32_t usart1_rx_buffer_idx = 0;
+
 
 /* USER CODE END PFP */
 
@@ -74,6 +90,121 @@ void usart_transmit_data(const void* data, uint16_t len) {
         }
  }
 
+//void dma_configure_nb(void)
+//{
+//  /* TX */
+//  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_7,
+//                         (uint32_t)m95_send_buf,
+//                         LL_USART_DMA_GetRegAddr(M95_UART),
+//                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+//
+//  /* tx channel ***************************/
+//  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_7);
+//
+//  /* Enable DMA TX Interrupt */
+//  LL_USART_EnableDMAReq_TX(M95_UART);
+//}
+
+
+
+/**
+ * \brief           Check if DMA is active and if not try to send data
+ * \return          `1` if transfer just started, `0` if on-going or no data to transmit
+ */
+uint8_t
+usart_start_tx_dma_transfer(void) {
+    uint32_t primask;
+    uint8_t started = 0;
+
+    /*
+     * First check if transfer is currently in-active,
+     * by examining the value of usart_tx_dma_current_len variable.
+     *
+     * This variable is set before DMA transfer is started and cleared in DMA TX complete interrupt.
+     *
+     * It is not necessary to disable the interrupts before checking the variable:
+     *
+     * When usart_tx_dma_current_len == 0
+     *    - This function is called by either application or TX DMA interrupt
+     *    - When called from interrupt, it was just reset before the call,
+     *         indicating transfer just completed and ready for more
+     *    - When called from an application, transfer was previously already in-active
+     *         and immediate call from interrupt cannot happen at this moment
+     *
+     * When usart_tx_dma_current_len != 0
+     *    - This function is called only by an application.
+     *    - It will never be called from interrupt with usart_tx_dma_current_len != 0 condition
+     *
+     * Disabling interrupts before checking for next transfer is advised
+     * only if multiple operating system threads can access to this function w/o
+     * exclusive access protection (mutex) configured,
+     * or if application calls this function from multiple interrupts.
+     *
+     * This example assumes worst use case scenario,
+     * hence interrupts are disabled prior every check
+     */
+//    primask = __get_PRIMASK();
+//    __disable_irq();
+//    if (usart_tx_dma_current_len == 0
+//            && (usart_tx_dma_current_len = lwrb_get_linear_block_read_length(&usart_tx_rb)) > 0) {
+        /* Disable channel if enabled */
+//        LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_3);
+
+        /* Clear all flags */
+        LL_DMA_ClearFlag_TC3(DMA1);
+        LL_DMA_ClearFlag_HT3(DMA1);
+        LL_DMA_ClearFlag_GI3(DMA1);
+        LL_DMA_ClearFlag_TE3(DMA1);
+
+        /* Prepare DMA data and length */
+//        LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_3, usart_tx_dma_current_len);
+//        LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_3, (uint32_t)lwrb_get_linear_block_read_address(&usart_tx_rb));
+
+        /* Start transfer */
+//        LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_3);
+        started = 1;
+//    }
+//    __set_PRIMASK(primask);
+    return started;
+}
+
+
+void dma_configure_nb(void)
+{
+  /* TX */
+//  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_7,
+//                         (uint32_t)m95_send_buf,
+//                         LL_USART_DMA_GetRegAddr(M95_UART),
+//                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+
+  /* tx channel ***************************/
+//  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_7);
+
+	LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)usart_rx_dma_buffer);
+	LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ARRAY_LEN(usart_rx_dma_buffer));
+
+    /* Enable HT & TC interrupts */
+//    LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_5);
+    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_5);
+
+    /* DMA1_Channel5_IRQn interrupt configuration */
+    NVIC_SetPriority(DMA1_Channel5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+    NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+
+//    LL_USART_EnableDMAReq_RX(USART1);
+    LL_USART_EnableIT_IDLE(USART1);
+    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_5);
+
+    /* USART interrupt */
+//    NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+//    NVIC_EnableIRQ(USART1_IRQn);
+
+
+  /* Enable DMA TX Interrupt */
+//  LL_USART_EnableDMAReq_TX(M95_UART);
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -97,15 +228,19 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  LL_Init1msTick(48000000);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_DMA_Init();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 //  TIM14->CNT = 0;
 //  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
+  dma_configure_nb();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -135,6 +270,10 @@ int main(void)
   rc_configure();
   usart3_is_msg = 0;
   usart3_buff_idx =0;
+  LL_SYSTICK_EnableIT();
+//  LL_USART_EnableIT_RXNE(USART1);
+//  LL_USART_EnableIT_TC(USART1);
+  nb_bc_reboot();
 
 //  rc_factory_reset();
   while(1)
@@ -200,6 +339,104 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  LL_USART_InitTypeDef USART_InitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
+
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
+  /**USART1 GPIO Configuration
+  PA9   ------> USART1_TX
+  PA10   ------> USART1_RX
+  */
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_9;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* USART1 DMA Init */
+
+  /* USART1_RX Init */
+  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+
+  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PRIORITY_LOW);
+
+  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MODE_CIRCULAR);
+
+  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PERIPH_NOINCREMENT);
+
+  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MEMORY_INCREMENT);
+
+  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PDATAALIGN_BYTE);
+
+  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MDATAALIGN_BYTE);
+
+//  LL_DMA_SetM2MSrcAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)&USART1->DR);
+
+  LL_DMA_SetPeriphAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)&USART1->DR);
+
+  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_5, (uint32_t)usart_rx_dma_buffer);
+
+
+  LL_USART_EnableDMAReq_RX(USART1);
+
+  /* USART1_TX Init */
+  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_4, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+
+  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_4, LL_DMA_PRIORITY_LOW);
+
+  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MODE_CIRCULAR);
+
+  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_4, LL_DMA_PERIPH_NOINCREMENT);
+
+  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MEMORY_INCREMENT);
+
+  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_4, LL_DMA_PDATAALIGN_BYTE);
+
+  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MDATAALIGN_BYTE);
+
+  /* USART1 interrupt Init */
+  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(USART1_IRQn);
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  USART_InitStruct.BaudRate = 115200;
+  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
+  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
+  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
+  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
+  LL_USART_Init(USART1, &USART_InitStruct);
+  LL_USART_ConfigAsyncMode(USART1);
+  LL_USART_Enable(USART1);
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
 }
 
 /**
@@ -339,6 +576,26 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* Init with LL driver */
+  /* DMA controller clock enable */
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  NVIC_SetPriority(DMA1_Channel4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  NVIC_SetPriority(DMA1_Channel5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -354,7 +611,10 @@ static void MX_GPIO_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_6);
+  LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_6|OUT_NB_STAT_Pin|OUT_NB_RST_Pin|OUT_NB_PWRKEY_Pin);
+
+  /**/
+  LL_GPIO_SetOutputPin(OUT_NB_PSM_EINT_GPIO_Port, OUT_NB_PSM_EINT_Pin);
 
   /**/
   LL_GPIO_SetOutputPin(RC11XX_CFG_PIN_GPIO_Port, RC11XX_CFG_PIN_Pin);
@@ -363,7 +623,8 @@ static void MX_GPIO_Init(void)
   LL_GPIO_SetOutputPin(RC11XX_RESET_PIN_GPIO_Port, RC11XX_RESET_PIN_Pin);
 
   /**/
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_6|OUT_NB_STAT_Pin|OUT_NB_RST_Pin|OUT_NB_PWRKEY_Pin
+                          |OUT_NB_PSM_EINT_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -399,11 +660,13 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
+
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM1) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
+
   /* USER CODE END Callback 1 */
 }
 

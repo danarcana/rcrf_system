@@ -29,6 +29,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#include "stm32f1xx_ll_dma.h"
 #include "stm32f1xx_ll_rcc.h"
 #include "stm32f1xx_ll_bus.h"
 #include "stm32f1xx_ll_system.h"
@@ -36,7 +37,6 @@ extern "C" {
 #include "stm32f1xx_ll_cortex.h"
 #include "stm32f1xx_ll_utils.h"
 #include "stm32f1xx_ll_pwr.h"
-#include "stm32f1xx_ll_dma.h"
 #include "stm32f1xx_ll_usart.h"
 #include "stm32f1xx_ll_gpio.h"
 
@@ -68,12 +68,21 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define OUT_NB_STAT_Pin LL_GPIO_PIN_7
+#define OUT_NB_STAT_GPIO_Port GPIOA
+#define OUT_NB_RST_Pin LL_GPIO_PIN_8
+#define OUT_NB_RST_GPIO_Port GPIOA
+#define OUT_NB_PWRKEY_Pin LL_GPIO_PIN_11
+#define OUT_NB_PWRKEY_GPIO_Port GPIOA
+#define OUT_NB_PSM_EINT_Pin LL_GPIO_PIN_12
+#define OUT_NB_PSM_EINT_GPIO_Port GPIOA
 #define RC11XX_CFG_PIN_Pin LL_GPIO_PIN_12
 #define RC11XX_CFG_PIN_GPIO_Port GPIOC
 #define RC11XX_RESET_PIN_Pin LL_GPIO_PIN_2
 #define RC11XX_RESET_PIN_GPIO_Port GPIOD
 /* USER CODE BEGIN Private defines */
 
+extern __IO uint32_t  		systick_counter;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

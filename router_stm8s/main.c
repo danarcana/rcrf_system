@@ -111,7 +111,7 @@ typedef union {
 
 //#define RC11XX_CFG_DATA_RATE							2
 #define RC11XX_CFG_DATA_RATE							3
-#define RC11XX_CFG_DEVICE_TYPE						RC11XX_END_DEVICE
+#define RC11XX_CFG_DEVICE_TYPE						RC11XX_ROUTER
 #define RC11XX_CFG_PROTOCOL_MODE					RC11XX_PACKET_MODE
 //Wake up source on usart
 #define RC11XX_CFG_WAKE_UP_SOURCE					4
@@ -119,7 +119,7 @@ typedef union {
 #define RC11XX_CFG_UID0										192
 #define RC11XX_CFG_UID1										44
 #define RC11XX_CFG_UID2										0
-#define RC11XX_CFG_UID3										77
+#define RC11XX_CFG_UID3										78
 
 #pragma pack(1)
 typedef struct
@@ -934,7 +934,7 @@ void main(void)
 	rc_configure_ed();
 	
 	while (1) {
-		delay_ms(7500);
+		delay_ms(15500);
 //		_delay_cycl((unsigned short) (T_COUNT(10000));
 		if (i2c_state == I2C_OK)
 		{

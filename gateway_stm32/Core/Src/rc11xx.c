@@ -16,12 +16,13 @@ extern __IO uint8_t     usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
 extern __IO uint8_t     usart3_is_msg;
 extern __IO uint8_t		usart3_buff_idx;
 rc11xx_config_mem_t * 	p_rc_config_mem;
+volatile uint32_t RCTimeout = 250;
 
 bool rc_enter_config(void)
 {
 	uint8_t ret_val = false;
-	uint8_t in_char=0;
-	uint8_t i=0;
+//	uint8_t in_char=0;
+//	uint8_t i=0;
 //	rc_hw_reset();
 	LL_GPIO_ResetOutputPin(RC11XX_CFG_PIN);
 	usart3_is_msg= 0;
@@ -156,4 +157,32 @@ void rc_configure()
 	HAL_Delay(170);
 	rc_exit_config();
 	HAL_Delay(170);
+	  usart3_is_msg = 0;
+	  usart3_buff_idx =0;
+}
+
+void RC_TimerHandler(void)
+{
+	if (RCTimeout) RCTimeout--;
+}
+
+extern __IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
+extern __IO uint8_t   usart3_rx_len;
+extern __IO uint8_t   usart3_is_msg;
+extern __IO uint8_t   usart3_buff_idx;
+
+void RC_Handler(void)
+{
+	if (RCTimeout) return;
+//	  HAL_Delay(250);
+	  //forward USART3 receive data on USART2
+	  if (usart3_is_msg==1)
+	  {
+		  usart3_rx_len = usart3_buff_idx;
+		  usart3_buff_idx = 0;
+		  LL_USART_TransmitData8(USART2, usart3_rx_buffer[usart3_buff_idx]);
+		  usart3_buff_idx ++;
+		  usart3_is_msg = 0;
+	  }
+
 }

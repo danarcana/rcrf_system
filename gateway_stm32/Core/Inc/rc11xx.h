@@ -199,5 +199,7 @@ void rc_exit_config(void);
 void rc_read_config(void);
 void rc_configure(void);
 void rc_factory_reset();
+void RC_TimerHandler(void);
+void RC_Handler(void);
 
 #endif /* INC_RC11XX_H_ */

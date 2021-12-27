@@ -37,10 +37,10 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 #define USART3_RX_BUFFER_SIZE      250
 
-extern __IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
-extern __IO uint8_t   usart3_rx_len;
-extern __IO uint8_t   usart3_is_msg;
-extern __IO uint8_t   usart3_buff_idx;
+//extern __IO uint8_t   usart3_rx_buffer[USART3_RX_BUFFER_SIZE];
+//extern __IO uint8_t   usart3_rx_len;
+//extern __IO uint8_t   usart3_is_msg;
+//extern __IO uint8_t   usart3_buff_idx;
 
 /**
  * \brief           Calculate length of statically allocated array
@@ -82,8 +82,8 @@ void usart_transmit_data(const void* data, uint16_t len) {
         LL_USART_TransmitData8(USART2, *b++);
 
         while (!LL_USART_IsActiveFlag_TXE(USART2)){
-          uint32_t transmit_empty_register=LL_USART_IsActiveFlag_TXE(USART2);
-          uint32_t  transfer_complete=LL_USART_IsActiveFlag_TC(USART2);
+//          uint32_t transmit_empty_register=LL_USART_IsActiveFlag_TXE(USART2);
+//          uint32_t  transfer_complete=LL_USART_IsActiveFlag_TC(USART2);
           //LL_USART_ClearFlag_PE(USART1);
         }
         }
@@ -103,69 +103,6 @@ void usart_transmit_data(const void* data, uint16_t len) {
 //  /* Enable DMA TX Interrupt */
 //  LL_USART_EnableDMAReq_TX(M95_UART);
 //}
-
-
-
-/**
- * \brief           Check if DMA is active and if not try to send data
- * \return          `1` if transfer just started, `0` if on-going or no data to transmit
- */
-uint8_t
-usart_start_tx_dma_transfer(void) {
-    uint32_t primask;
-    uint8_t started = 0;
-
-    /*
-     * First check if transfer is currently in-active,
-     * by examining the value of usart_tx_dma_current_len variable.
-     *
-     * This variable is set before DMA transfer is started and cleared in DMA TX complete interrupt.
-     *
-     * It is not necessary to disable the interrupts before checking the variable:
-     *
-     * When usart_tx_dma_current_len == 0
-     *    - This function is called by either application or TX DMA interrupt
-     *    - When called from interrupt, it was just reset before the call,
-     *         indicating transfer just completed and ready for more
-     *    - When called from an application, transfer was previously already in-active
-     *         and immediate call from interrupt cannot happen at this moment
-     *
-     * When usart_tx_dma_current_len != 0
-     *    - This function is called only by an application.
-     *    - It will never be called from interrupt with usart_tx_dma_current_len != 0 condition
-     *
-     * Disabling interrupts before checking for next transfer is advised
-     * only if multiple operating system threads can access to this function w/o
-     * exclusive access protection (mutex) configured,
-     * or if application calls this function from multiple interrupts.
-     *
-     * This example assumes worst use case scenario,
-     * hence interrupts are disabled prior every check
-     */
-//    primask = __get_PRIMASK();
-//    __disable_irq();
-//    if (usart_tx_dma_current_len == 0
-//            && (usart_tx_dma_current_len = lwrb_get_linear_block_read_length(&usart_tx_rb)) > 0) {
-        /* Disable channel if enabled */
-//        LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_3);
-
-        /* Clear all flags */
-        LL_DMA_ClearFlag_TC3(DMA1);
-        LL_DMA_ClearFlag_HT3(DMA1);
-        LL_DMA_ClearFlag_GI3(DMA1);
-        LL_DMA_ClearFlag_TE3(DMA1);
-
-        /* Prepare DMA data and length */
-//        LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_3, usart_tx_dma_current_len);
-//        LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_3, (uint32_t)lwrb_get_linear_block_read_address(&usart_tx_rb));
-
-        /* Start transfer */
-//        LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_3);
-        started = 1;
-//    }
-//    __set_PRIMASK(primask);
-    return started;
-}
 
 
 void dma_configure_nb(void)
@@ -247,7 +184,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
-  MX_USART1_UART_Init();
+//  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 //  TIM14->CNT = 0;
 //  htim14.Instance->CR1 &= (~((uint32_t)TIM_CR1_CEN));
@@ -279,28 +216,19 @@ int main(void)
 
   rc_read_config();
   rc_configure();
-  usart3_is_msg = 0;
-  usart3_buff_idx =0;
+
   LL_SYSTICK_EnableIT();
-  LL_USART_EnableIT_RXNE(USART1);
-  LL_USART_EnableIT_IDLE(USART1);
+//  LL_USART_EnableIT_RXNE(USART1);
+//  LL_USART_EnableIT_IDLE(USART1);
 //  LL_USART_EnableIT_TC(USART1);
   nb_bc_reboot();
+//  NB_Init();
 
 //  rc_factory_reset();
   while(1)
   {
-	  HAL_Delay(250);
-	  //forward USART3 receive data on USART2
-	  if (usart3_is_msg==1)
-	  {
-		  usart3_rx_len = usart3_buff_idx;
-		  usart3_buff_idx = 0;
-		  LL_USART_TransmitData8(USART2, usart3_rx_buffer[usart3_buff_idx]);
-		  usart3_buff_idx ++;
-		  usart3_is_msg = 0;
-	  }
-
+	  RC_Handler();
+//	  NB_Handler();
   }
     /* USER CODE END WHILE */
 

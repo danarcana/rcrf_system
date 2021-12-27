@@ -26,6 +26,7 @@
 #include "usart_cb.h"
 #include "nb_bc.h"
 #include "ring_buffer.h"
+#include "rc11xx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -198,6 +199,8 @@ void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 	systick_counter++;
+	NB_TimerHandler();
+	RC_TimerHandler();
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -249,11 +252,10 @@ void USART1_IRQHandler(void)
     /* Check for IDLE line interrupt */
     if (LL_USART_IsEnabledIT_IDLE(USART1) && LL_USART_IsActiveFlag_IDLE(USART1)) {
         LL_USART_ClearFlag_IDLE(USART1);        /* Clear IDLE line flag */
-//        usart_rx_check();                       /* Check for data to process */
         __NOP();
 
-        ringbuffer_Write(&nb_bc_rx_ring_buffer, nb_bc_start_of_msg, nb_bc_recv_len);
-        nb_bc_start_of_msg = 0;
+//        ringbuffer_Write(&nb_bc_rx_ring_buffer, nb_bc_start_of_msg, nb_bc_recv_len);
+//        nb_bc_start_of_msg = 0;
         usart1_idle_flag = 1;
 
 //        LL_TIM_DisableCounter(TIMER_M95_EOF);
@@ -267,29 +269,31 @@ void USART1_IRQHandler(void)
     if(LL_USART_IsActiveFlag_RXNE(NB_BC_UART))
     {
       c = LL_USART_ReceiveData8(NB_BC_UART);
-//      LL_TIM_SetCounter(TIMER_M95_EOF, 0);
+////      LL_TIM_SetCounter(TIMER_M95_EOF, 0);
+//
+//      if((nb_bc_recv_buf_p > NB_BC_UART_RX_MAX_ADDR))
+//      {
+//        nb_bc_recv_buf_p = NB_BC_UART_RX_BASE_ADDR;
+//      }
+//
+//      if( 0 == nb_bc_start_of_msg )
+//      {
+//
+//        nb_bc_start_of_msg = (uint32_t)nb_bc_recv_buf_p;
+//        nb_bc_recv_len = 0;
+////        LL_TIM_EnableCounter(TIMER_M95_EOF);
+//      }
 
-      if((nb_bc_recv_buf_p > NB_BC_UART_RX_MAX_ADDR))
-      {
-        nb_bc_recv_buf_p = NB_BC_UART_RX_BASE_ADDR;
-      }
-
-      if( 0 == nb_bc_start_of_msg )
-      {
-
-        nb_bc_start_of_msg = (uint32_t)nb_bc_recv_buf_p;
-        nb_bc_recv_len = 0;
-//        LL_TIM_EnableCounter(TIMER_M95_EOF);
-      }
-
-      if((0x0a != c) && (0x0d != c))
-      {
-        *nb_bc_recv_buf_p++ = c;
-        nb_bc_recv_len++;
-      }
+//      if((0x0a != c) && (0x0d != c))
+//      {
+//        *nb_bc_recv_buf_p++ = c;
+//        nb_bc_recv_len++;
+//      }
 //      		  usart_rx_dma_buffer[usart1_rx_buffer_idx]= LL_USART_ReceiveData8(USART1);
 		  usart_rx_dma_buffer[usart1_rx_buffer_idx]= c;
       		  usart1_rx_buffer_idx ++;
+      		  if (usart1_rx_buffer_idx>249){usart1_rx_buffer_idx=0;}
+//      	    NB_SaveByte(c);
     }
 
 //	  if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
@@ -299,6 +303,7 @@ void USART1_IRQHandler(void)
 //		  usart_rx_dma_buffer[usart1_rx_buffer_idx]= LL_USART_ReceiveData8(USART1);
 //		  usart1_rx_buffer_idx ++;
 //	  }
+
   /* USER CODE END USART1_IRQn 0 */
   /* USER CODE BEGIN USART1_IRQn 1 */
 
